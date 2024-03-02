@@ -14,9 +14,24 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  name String
+  id       String @id @default(uuid())
+  name     String
   username String @unique
   password String
-  token String
+  token    String
+}
+
+model Product {
+  id      String      @id @default(uuid())
+  name    String
+  stock   Int
+  type    ProductType @relation(fields: [type_id], references: [id])
+  type_id String // Cambiado a type_id para seguir la convención
+}
+
+model ProductType {
+  id      String    @id @default(uuid())
+  name    String
+  price   Float
+  Product Product[]
 }
