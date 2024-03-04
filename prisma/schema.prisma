@@ -18,20 +18,110 @@ model User {
   name     String
   username String @unique
   password String
-  token    String
+  Log      Log[]
 }
 
 model Product {
-  id      String      @id @default(uuid())
-  name    String
-  stock   Int
-  type    ProductType @relation(fields: [type_id], references: [id])
-  type_id String // Cambiado a type_id para seguir la convención
+  id               String             @id @default(uuid())
+  name             String
+  stock            Int
+  type             ProductType        @relation(fields: [type_id], references: [id])
+  type_id          String // Cambiado a type_id para seguir la convención
+  materialRecipe   MaterialRecipe[]
+  ProductionDetail ProductionDetail[]
 }
 
 model ProductType {
-  id      String    @id @default(uuid())
-  name    String
-  price   Float
-  Product Product[]
+  id         String       @id @default(uuid())
+  name       String
+  price      Float
+  Product    Product[]
+  saleDetail SaleDetail[]
+}
+
+model Client {
+  id         String           @id @default(uuid())
+  name       String
+  email      String
+  phone      String
+  address    ClientCoordinate @relation(fields: [address_id], references: [id])
+  address_id String
+  sale       Sale[]
+}
+
+model ClientCoordinate {
+  id     String   @id @default(uuid())
+  lat    String
+  lon    String
+  client Client[]
+}
+
+model Material {
+  id             String           @id @default(uuid())
+  name           String
+  stock          Int
+  image          String
+  actual_price   Float
+  materialRecipe MaterialRecipe[]
+}
+
+model MaterialRecipe {
+  id          String   @id @default(uuid())
+  material    Material @relation(fields: [material_id], references: [id])
+  material_id String
+  product     Product  @relation(fields: [product_id], references: [id])
+  product_id  String
+}
+
+model Sale {
+  id         String       @id @default(uuid())
+  date       DateTime
+  total      Float
+  client     Client       @relation(fields: [client_id], references: [id])
+  client_id  String
+  saleDetail SaleDetail[]
+}
+
+model SaleDetail {
+  id             String      @id @default(uuid())
+  quantity       Int
+  price          Float
+  productType    ProductType @relation(fields: [productType_id], references: [id])
+  productType_id String
+  sale           Sale        @relation(fields: [sale_id], references: [id])
+  sale_id        String
+}
+
+model Production {
+  id                String             @id @default(uuid())
+  date              DateTime
+  hours             Int
+  personal_quantity Int
+  ProductionDetail  ProductionDetail[]
+}
+
+model ProductionDetail {
+  id            String     @id @default(uuid())
+  production    Production @relation(fields: [production_id], references: [id])
+  production_id String
+  product       Product    @relation(fields: [product_id], references: [id])
+  product_id    String
+  quantity      Int
+}
+
+model Log {
+  id          String   @id @default(uuid())
+  date        DateTime
+  action      String
+  description String
+  user        User     @relation(fields: [user_id], references: [id])
+  user_id     String
+}
+
+model Spent {
+  id    String   @id @default(uuid())
+  name  String
+  date  DateTime
+  type  String
+  price Float
 }
