@@ -29,14 +29,14 @@ model Product {
   type_id          String // Cambiado a type_id para seguir la convención
   materialRecipe   MaterialRecipe[]
   ProductionDetail ProductionDetail[]
+  SaleDetail       SaleDetail[]
 }
 
 model ProductType {
-  id         String       @id @default(uuid())
-  name       String
-  price      Float
-  Product    Product[]
-  saleDetail SaleDetail[]
+  id      String    @id @default(uuid())
+  name    String
+  price   Float
+  Product Product[]
 }
 
 model Client {
@@ -83,13 +83,12 @@ model Sale {
 }
 
 model SaleDetail {
-  id             String      @id @default(uuid())
-  quantity       Int
-  price          Float
-  productType    ProductType @relation(fields: [productType_id], references: [id])
-  productType_id String
-  sale           Sale        @relation(fields: [sale_id], references: [id])
-  sale_id        String
+  id         String  @id @default(uuid())
+  quantity   Int
+  product    Product @relation(fields: [product_id], references: [id])
+  product_id String
+  sale       Sale    @relation(fields: [sale_id], references: [id])
+  sale_id    String
 }
 
 model Production {
