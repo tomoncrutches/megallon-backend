@@ -10,6 +10,15 @@ export class MaterialService {
     try {
       return this.prisma.material.create({ data });
     } catch (error) {
+      console.error('An error has ocurred while creating data: ', error);
+      throw new Error(`An error has ocurred while creating data: ${error}`);
+    }
+  }
+
+  async getAll() {
+    try {
+      return this.prisma.material.findMany();
+    } catch (error) {
       console.error('An error has ocurred while fetching data: ', error);
       throw new Error(`An error has ocurred while fetching data: ${error}`);
     }
