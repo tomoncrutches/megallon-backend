@@ -110,7 +110,7 @@ model ProductionDetail {
 
 model Log {
   id          String   @id @default(uuid())
-  date        DateTime
+  date        DateTime @default(now())
   action      String
   description String
   user        User     @relation(fields: [user_id], references: [id])
