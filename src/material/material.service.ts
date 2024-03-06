@@ -10,8 +10,13 @@ export class MaterialService {
     try {
       return await this.prisma.material.create({ data });
     } catch (error) {
-      console.error('An error has ocurred while creating data: ', error);
-      throw new Error(`An error has ocurred while creating data: ${error}`);
+      console.error(
+        'An error has ocurred while creating data: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred while creating data: ${error.message}`,
+      );
     }
   }
 
@@ -19,8 +24,13 @@ export class MaterialService {
     try {
       return await this.prisma.material.findMany();
     } catch (error) {
-      console.error('An error has ocurred while fetching data: ', error);
-      throw new Error(`An error has ocurred while fetching data: ${error}`);
+      console.error(
+        'An error has ocurred while fetching data: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred while fetching data: ${error.message}`,
+      );
     }
   }
 
@@ -28,24 +38,32 @@ export class MaterialService {
     try {
       return await this.prisma.material.findFirst({ where: index });
     } catch (error) {
-      console.error('An error has ocurred while fetching data detail: ', error);
+      console.error(
+        'An error has ocurred while fetching data detail: ',
+        error.message,
+      );
       throw new Error(
-        `An error has ocurred while fetching data detail: ${error}`,
+        `An error has ocurred while fetching data detail: ${error.message}`,
       );
     }
   }
 
-  async update(id: string, data: Material) {
+  async update(data: Material) {
     try {
       return await this.prisma.material.update({
         where: {
-          id,
+          id: data.id,
         },
         data,
       });
     } catch (error) {
-      console.error('An error has ocurred while updating material: ', error);
-      throw new Error(`An error has ocurred while updating material: ${error}`);
+      console.error(
+        'An error has ocurred while updating material: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred while updating material: ${error.message}`,
+      );
     }
   }
 
@@ -53,8 +71,13 @@ export class MaterialService {
     try {
       return await this.prisma.material.delete({ where: { id } });
     } catch (error) {
-      console.error('An error has ocurred white deleting material: ', error);
-      throw new Error(`An error has ocurred white deleting material: ${error}`);
+      console.error(
+        'An error has ocurred white deleting material: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred white deleting material: ${error.message}`,
+      );
     }
   }
 }
