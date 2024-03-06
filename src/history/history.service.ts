@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { Log } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class HistoryService {
@@ -10,8 +10,13 @@ export class HistoryService {
     try {
       return await this.prisma.log.findMany();
     } catch (error) {
-      console.error('An error has ocurred while fetching data: ', error);
-      throw new Error(`An error has ocurred white fetching data : ${error}`);
+      console.error(
+        'An error has ocurred while fetching data: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred while fetching data : ${error.message}`,
+      );
     }
   }
 
@@ -19,8 +24,13 @@ export class HistoryService {
     try {
       return await this.prisma.log.create({ data });
     } catch (error) {
-      console.error('An error has ocurred while creating data: ', error);
-      throw new Error(`An error has ocurred white creating data : ${error}`);
+      console.error(
+        'An error has ocurred while creating data: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred while creating data : ${error.message}`,
+      );
     }
   }
 }
