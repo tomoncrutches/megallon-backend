@@ -11,9 +11,10 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaService } from './prisma/prisma.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductionModule } from './production/production.module';
+import { ClientsModule } from './clients/clients.module';
 
 @Module({
-  imports: [MaterialModule, ProductsModule, HistoryModule, SalesModule, StatisticsModule, FinancesModule, AuthModule, PrismaModule, ProductionModule],
+  imports: [MaterialModule, ProductsModule, HistoryModule, SalesModule, StatisticsModule, FinancesModule, AuthModule, PrismaModule, ProductionModule, ClientsModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
