@@ -36,12 +36,22 @@ export class ProductsService {
     }
   }
 
-  async update(id: string, data: Product) {
+  async update(data: Product) {
     try {
-      return await this.prisma.product.update({ where: { id }, data });
+      return await this.prisma.product.update({
+        where: {
+          id: data.id,
+        },
+        data,
+      });
     } catch (error) {
-      console.error(`Error in update: ${error.message}`);
-      throw new Error('Error updating data in the database');
+      console.error(
+        'An error has ocurred while updating product: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred while updating product: ${error.message}`,
+      );
     }
   }
 
@@ -57,7 +67,7 @@ export class ProductsService {
   async addProduction(list: Product[]) {
     try {
       list.forEach((element) => {
-        this.update(element['id'], element);
+        this.update(element);
       });
     } catch (error) {
       console.error(`Error in addProduction: ${error.message}`);

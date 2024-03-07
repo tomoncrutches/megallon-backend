@@ -76,27 +76,57 @@ export class ProductionService {
     }
   }
 
-  async update(id: string, data: Production) {
+  async update(data: Production) {
     try {
-      return await this.prisma.production.update({ where: { id }, data });
+      return await this.prisma.production.update({
+        where: {
+          id: data.id,
+        },
+        data,
+      });
     } catch (error) {
-      console.error(`Error in update: ${error.message}`);
-      throw new Error('Error updating data in the database');
+      console.error(
+        'An error has ocurred while updating production: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred while updating production: ${error.message}`,
+      );
     }
   }
 
-  async updateProductionDetails(id: string, data: ProductionDetail) {
+  async updateProductionDetails(data: ProductionDetail) {
     try {
-      return await this.prisma.productionDetail.update({ where: { id }, data });
+      return await this.prisma.productionDetail.update({
+        where: {
+          id: data.id,
+        },
+        data,
+      });
     } catch (error) {
-      console.error(`Error in update: ${error.message}`);
-      throw new Error('Error updating data in the database');
+      console.error(
+        'An error has ocurred while updating production detail: ',
+        error.message,
+      );
+      throw new Error(
+        `An error has ocurred while updating production detail: ${error.message}`,
+      );
     }
   }
 
   async delete(id: string) {
     try {
+      await this.prisma.productionDetail.deleteMany({ where: { id } });
       return await this.prisma.production.delete({ where: { id } });
+    } catch (error) {
+      console.error(`Error in delete: ${error.message}`);
+      throw new Error('Error deleting data from the database');
+    }
+  }
+
+  async deleteProductionDetail(id: string) {
+    try {
+      return await this.prisma.productionDetail.delete({ where: { id } });
     } catch (error) {
       console.error(`Error in delete: ${error.message}`);
       throw new Error('Error deleting data from the database');
