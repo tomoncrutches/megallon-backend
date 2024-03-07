@@ -36,7 +36,7 @@ export class ProductionService {
     try {
       const product = await this.productsService.getOne({ id: productId });
       product['stock'] += quantity;
-      await this.productsService.update(productId, product);
+      await this.productsService.update(product);
     } catch (error) {
       console.error(`Error updating product stock: ${error.message}`);
       throw new Error('Error updating product stock');
