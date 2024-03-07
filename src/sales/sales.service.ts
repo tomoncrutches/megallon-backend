@@ -1,19 +1,23 @@
-import { Sale, SaleDetail } from '@prisma/client';
+import { Product, Sale, SaleDetail } from '@prisma/client';
+import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { SaleExtended } from 'src/types/sale.types';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class SalesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private productsService: ProductsService,
+  ) {}
 
   async getAll() {
     try {
       const sales = await this.prisma.sale.findMany();
       const salesDetails = await this.prisma.saleDetail.findMany();
 
-      return sales.map((sale) => {
+      const extendedSales = sales.map((sale) => {
         return {
           ...sale,
           items: salesDetails.filter(
@@ -21,6 +25,34 @@ export class SalesService {
           ),
         };
       });
+      const finallySales: SaleExtended[] = [];
+
+      for (const sale of extendedSales) {
+        const items = await Promise.all(
+          sale.items.map((item) => {
+            return new Promise(async (resolve) => {
+              const product = await this.productsService.getOne({
+                id: item.product_id,
+              });
+              resolve({
+                id: item.id,
+                quantity: item.quantity,
+                ...product,
+              });
+            });
+          }),
+        );
+        finallySales.push({
+          data: {
+            id: sale.id,
+            date: sale.date,
+            total: sale.total,
+            client_id: sale.client_id,
+          },
+          items: items as Product[],
+        });
+      }
+      return finallySales;
     } catch (error) {
       console.error(
         'An error has ocurred while fetching sales: ',
@@ -32,7 +64,7 @@ export class SalesService {
     }
   }
 
-  async create(payload: SaleExtended) {
+  async create(payload: SaleToCreate) {
     try {
       const sale = await this.prisma.sale.create({ data: payload.data });
       for (const product of payload.items) {
@@ -44,6 +76,7 @@ export class SalesService {
           },
         });
       }
+      return sale;
     } catch (error) {
       console.error(
         'An error has ocurred while creating sale: ',
@@ -55,9 +88,9 @@ export class SalesService {
     }
   }
 
-  async update(id: string, data: Sale) {
+  async update(data: Sale) {
     try {
-      await this.prisma.sale.update({ where: { id }, data });
+      await this.prisma.sale.update({ where: { id: data.id }, data });
     } catch (error) {
       console.error(
         'An error has ocurred while updating sale: ',
@@ -69,9 +102,9 @@ export class SalesService {
     }
   }
 
-  async updateDetail(id: string, data: SaleDetail) {
+  async updateDetail(data: SaleDetail) {
     try {
-      await this.prisma.saleDetail.update({ where: { id }, data });
+      await this.prisma.saleDetail.update({ where: { id: data.id }, data });
     } catch (error) {
       console.error(
         'An error has ocurred while updating sale: ',
@@ -85,7 +118,12 @@ export class SalesService {
 
   async delete(id: string) {
     try {
-      await this.prisma.sale.delete({
+      await this.prisma.saleDetail.deleteMany({
+        where: {
+          sale_id: id,
+        },
+      });
+      return await this.prisma.sale.delete({
         where: {
           id,
         },
