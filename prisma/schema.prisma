@@ -67,6 +67,7 @@ model Material {
 
 model MaterialRecipe {
   id          String   @id @default(uuid())
+  quantity    Float
   material    Material @relation(fields: [material_id], references: [id])
   material_id String
   product     Product  @relation(fields: [product_id], references: [id])
