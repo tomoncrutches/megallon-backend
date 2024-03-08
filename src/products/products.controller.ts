@@ -7,6 +7,8 @@ import {
   Get,
   Post,
   Put,
+  Logger,
+  Param,
 } from '@nestjs/common';
 
 import { Product } from '@prisma/client';
@@ -15,6 +17,7 @@ import { ProductsService } from './products.service';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly service: ProductsService) {}
+  private readonly logger = new Logger('Product Controller');
 
   @Post()
   async create(@Body() data: Product) {
@@ -35,9 +38,9 @@ export class ProductsController {
   }
 
   @Get(':index')
-  async getOne(@Body() index: object) {
+  async getOne(@Param() index: object) {
     try {
-      const item = await this.service.getOne(index);
+      const item = await this.service.getOne({ id: index['index'] });
       if (!item) throw new BadRequestException('Product not found.');
       return item;
     } catch (error) {
