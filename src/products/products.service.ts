@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Product } from '@prisma/client';
-import { ProductComplete } from 'src/types/product.types';
+import { ProductComplete, RecipeComplete } from 'src/types/product.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -30,7 +30,6 @@ export class ProductsService {
         };
         productsComplete.push(productComplete);
       }
-      this.logger.log(productsComplete); // Utiliza el servicio de registro en lugar de console.log
       return productsComplete;
     } catch (error) {
       console.error(`Error in getAll: ${error.message}`);
@@ -54,6 +53,42 @@ export class ProductsService {
       }
     } catch (error) {
       console.error(`Error in getOne: ${error.message}`);
+      throw new Error('Error retrieving data from the database');
+    }
+  }
+
+  async getCompleteRecipes(productId: string) {
+    try {
+      const recipes = await this.prisma.materialRecipe.findMany({
+        where: { product_id: productId },
+      });
+      const recipesComplete: RecipeComplete[] = [];
+      for (const recipe of recipes) {
+        const recipeComplete: RecipeComplete = await this.getRecipesDetails(
+          recipe.id,
+        );
+        recipesComplete.push(recipeComplete);
+      }
+      return recipes;
+    } catch (error) {
+      console.error(`Error in getRecipes: ${error.message}`);
+      throw new Error('Error retrieving data from the database');
+    }
+  }
+
+  async getRecipesDetails(recipeId: string) {
+    try {
+      const recipe = await this.prisma.materialRecipe.findFirst({
+        where: { id: recipeId },
+      });
+      const product = await this.getOne({ id: recipe.product_id });
+      const recipeComplete: RecipeComplete = {
+        data: recipe,
+        product: product.data,
+      };
+      return recipeComplete;
+    } catch (error) {
+      console.error(`Error in getRecipes: ${error.message}`);
       throw new Error('Error retrieving data from the database');
     }
   }
