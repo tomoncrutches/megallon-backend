@@ -7,6 +7,7 @@ import {
   Get,
   Post,
   Put,
+  Param,
 } from '@nestjs/common';
 
 import { Material } from '@prisma/client';
@@ -35,9 +36,9 @@ export class MaterialController {
   }
 
   @Get(':index')
-  async getOne(@Body() index: object) {
+  async getOne(@Param() index: object) {
     try {
-      const item = await this.service.getOne(index);
+      const item = await this.service.getOne({ id: index['index'] });
       if (!item) throw new BadRequestException('Material not found.');
       return item;
     } catch (error) {

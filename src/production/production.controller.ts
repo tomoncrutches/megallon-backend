@@ -5,6 +5,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  Param,
   Post,
   Put,
 } from '@nestjs/common';
@@ -35,9 +36,9 @@ export class ProductionController {
   }
 
   @Get(':index')
-  async getOne(@Body() index: object) {
+  async getOne(@Param() index: object) {
     try {
-      const item = await this.service.getOne(index);
+      const item = await this.service.getOne({ id: index['index'] });
       if (!item) throw new BadRequestException('Production not found.');
       return item;
     } catch (error) {
