@@ -18,7 +18,7 @@ export class ProductionController {
   constructor(private readonly service: ProductionService) {}
 
   @Post()
-  async create(@Body() data: Production, @Body() list: ProductionDetail[]) {
+  async create(@Body() data: Production, list: ProductionDetail[]) {
     try {
       return await this.service.create(data, list);
     } catch (error) {

@@ -116,7 +116,9 @@ export class ProductionService {
 
   async delete(id: string) {
     try {
-      await this.prisma.productionDetail.deleteMany({ where: { id } });
+      await this.prisma.productionDetail.deleteMany({
+        where: { production_id: id },
+      });
       return await this.prisma.production.delete({ where: { id } });
     } catch (error) {
       console.error(`Error in delete: ${error.message}`);
