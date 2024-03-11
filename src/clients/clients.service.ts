@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { Client } from '@prisma/client';
 import { ClientExtended } from 'src/types/client.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -8,7 +9,7 @@ export class ClientsService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger('ClientsService');
 
-  async create(payload: ClientExtended) {
+  async create(payload: ClientExtended): Promise<Client> {
     try {
       const coords = await this.prisma.clientCoordinate.create({
         data: {
@@ -28,7 +29,7 @@ export class ClientsService {
     }
   }
 
-  async getAll() {
+  async getAll(): Promise<ClientExtended[]> {
     try {
       const clients = await this.prisma.client.findMany();
       const clientsExtended: ClientExtended[] = [];

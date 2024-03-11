@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { Log } from '@prisma/client';
 import { LogBasic } from 'src/types/history.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -8,7 +9,7 @@ export class HistoryService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger('History Service');
 
-  async getAll() {
+  async getAll(): Promise<Log[]> {
     try {
       return await this.prisma.log.findMany();
     } catch (error) {
@@ -17,7 +18,7 @@ export class HistoryService {
     }
   }
 
-  async create(data: LogBasic) {
+  async create(data: LogBasic): Promise<Log> {
     try {
       return await this.prisma.log.create({ data });
     } catch (error) {
