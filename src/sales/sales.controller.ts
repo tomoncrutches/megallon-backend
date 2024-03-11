@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -21,7 +20,7 @@ export class SalesController {
     try {
       return await this.service.create(data);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
@@ -30,7 +29,7 @@ export class SalesController {
     try {
       return await this.service.getAll();
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
@@ -39,7 +38,7 @@ export class SalesController {
     try {
       return await this.service.update(data);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
@@ -48,7 +47,7 @@ export class SalesController {
     try {
       return await this.service.updateDetail(data);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
@@ -57,9 +56,10 @@ export class SalesController {
     const { id } = data;
     try {
       if (!id) throw new ForbiddenException('ID is required.');
+
       return await this.service.delete(id);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
@@ -68,9 +68,10 @@ export class SalesController {
     const { id } = data;
     try {
       if (!id) throw new ForbiddenException('ID is required.');
-      return this.service.deleteDetail(id);
+
+      return await this.service.deleteDetail(id);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 }
