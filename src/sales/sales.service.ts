@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Product, Sale, SaleDetail } from '@prisma/client';
 import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 
@@ -64,12 +64,24 @@ export class SalesService {
     try {
       const sale = await this.prisma.sale.create({ data: payload.data });
       for (const product of payload.items) {
+        const productDetail = await this.productsService.getOne({
+          id: product.id,
+        });
+        if (productDetail.data.stock < product.quantity)
+          throw new BadRequestException(
+            'The selected quantity is not available.',
+          );
+
         await this.prisma.saleDetail.create({
           data: {
             quantity: product.quantity,
             product_id: product.id,
             sale_id: sale.id,
           },
+        });
+        await this.productsService.update({
+          ...productDetail.data,
+          stock: productDetail.data.stock - product.quantity,
         });
       }
       return sale;
