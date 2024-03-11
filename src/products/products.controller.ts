@@ -7,22 +7,30 @@ import {
   Get,
   Post,
   Put,
-  Logger,
   Param,
 } from '@nestjs/common';
 
 import { Product } from '@prisma/client';
 import { ProductsService } from './products.service';
+import { HistoryService } from 'src/history/history.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly service: ProductsService) {}
-  private readonly logger = new Logger('Product Controller');
+  constructor(
+    private readonly service: ProductsService,
+    private readonly historyService: HistoryService,
+  ) {}
 
   @Post()
   async create(@Body() data: Product) {
     try {
-      return await this.service.create(data);
+      const NewProduct = await this.service.create(data);
+      await this.historyService.create({
+        action: 'Nuevo producto',
+        description: `Se llevo a cabo la creacion del producto ${data.name}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return NewProduct;
     } catch (error) {
       throw error;
     }
@@ -52,7 +60,13 @@ export class ProductsController {
   async update(@Body() data: Product) {
     try {
       if (!('id' in data)) throw new ForbiddenException('ID is required.');
-      return await this.service.update(data);
+      const updated = await this.service.update(data);
+      this.historyService.create({
+        action: 'Actualizar producto',
+        description: `Se actualizó el producto ${data.name}. `,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return updated;
     } catch (error) {
       throw error;
     }
@@ -62,7 +76,14 @@ export class ProductsController {
   async delete(@Body() data: { id: string }) {
     const { id } = data;
     try {
-      return await this.service.delete(id);
+      if (!id) throw new BadRequestException('ID is required.');
+      const deleted = await this.service.delete(id);
+      this.historyService.create({
+        action: 'Eliminar producto',
+        description: `Se eliminó el producto ${deleted.name}. `,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return deleted;
     } catch (error) {
       throw error;
     }

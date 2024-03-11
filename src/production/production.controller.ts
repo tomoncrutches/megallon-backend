@@ -12,15 +12,25 @@ import {
 
 import { Production, ProductionDetail } from '@prisma/client';
 import { ProductionService } from './production.service';
+import { HistoryService } from 'src/history/history.service';
 
 @Controller('production')
 export class ProductionController {
-  constructor(private readonly service: ProductionService) {}
+  constructor(
+    private readonly service: ProductionService,
+    private readonly historyService: HistoryService,
+  ) {}
 
   @Post()
   async create(@Body() data: Production, list: ProductionDetail[]) {
     try {
-      return await this.service.create(data, list);
+      const newProduction = await this.service.create(data, list);
+      await this.historyService.create({
+        action: 'Nueva producción',
+        description: `Se llevo a cabo la creacion de la producción del dia ${newProduction.date.toLocaleDateString}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return newProduction;
     } catch (error) {
       throw error;
     }
@@ -50,7 +60,13 @@ export class ProductionController {
   async updateProduction(@Body() data: Production) {
     try {
       if (!('id' in data)) throw new ForbiddenException('ID is required.');
-      return await this.service.update(data);
+      const updatedProduction = await this.service.update(data);
+      await this.historyService.create({
+        action: 'Actualización de producción',
+        description: `Se llevo a cabo la actualización de la producción del dia ${updatedProduction.date.toLocaleDateString}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return updatedProduction;
     } catch (error) {
       throw error;
     }
@@ -70,6 +86,12 @@ export class ProductionController {
   async deleteProduction(@Body() data: { id: string }) {
     const { id } = data;
     try {
+      const deleted = await this.service.delete(id);
+      await this.historyService.create({
+        action: 'Eliminación de producción',
+        description: `Se llevo a cabo la eliminación de la producción del dia ${deleted.date.toLocaleDateString}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
       return await this.service.delete(id);
     } catch (error) {
       throw error;
