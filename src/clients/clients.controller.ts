@@ -1,7 +1,16 @@
 import { ClientExtended } from 'src/types/client.types';
 import { ClientsService } from './clients.service';
-import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Logger,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { HistoryService } from 'src/history/history.service';
+import { Client } from '@prisma/client';
 
 @Controller('clients')
 export class ClientsController {
@@ -33,6 +42,17 @@ export class ClientsController {
       return await this.service.getAll();
     } catch (error) {
       this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  @Get('detail')
+  async getOne(@Query() client: Client) {
+    try {
+      if (Object.entries(client).length === 0)
+        throw new ForbiddenException('Attribute is required.');
+      return await this.service.getOne(client);
+    } catch (error) {
       throw error;
     }
   }

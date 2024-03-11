@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ClientExtended, OptionalClient } from 'src/types/client.types';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { Client } from '@prisma/client';
-import { ClientExtended } from 'src/types/client.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -47,6 +47,17 @@ export class ClientsService {
       return clientsExtended;
     } catch (error) {
       this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async getOne(client: OptionalClient): Promise<Client> {
+    try {
+      const dbClient = await this.prisma.client.findFirst({ where: client });
+      if (!dbClient) throw new NotFoundException("Client doesn't exists.");
+
+      return dbClient;
+    } catch (error) {
       throw error;
     }
   }
