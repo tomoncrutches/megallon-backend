@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Log } from '@prisma/client';
+
+import { LogBasic } from 'src/types/history.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -16,7 +17,7 @@ export class HistoryService {
     }
   }
 
-  async create(data: Log) {
+  async create(data: LogBasic) {
     try {
       return await this.prisma.log.create({ data });
     } catch (error) {
