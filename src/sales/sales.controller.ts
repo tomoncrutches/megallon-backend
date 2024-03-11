@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  Logger,
   Post,
   Put,
 } from '@nestjs/common';
@@ -14,12 +15,14 @@ import { Sale, SaleDetail } from '@prisma/client';
 @Controller('sales')
 export class SalesController {
   constructor(private readonly service: SalesService) {}
+  private readonly logger = new Logger('SalesController');
 
   @Post()
   async create(@Body() data: SaleToCreate) {
     try {
       return await this.service.create(data);
     } catch (error) {
+      this.logger.error(error.message);
       throw error;
     }
   }
@@ -29,6 +32,7 @@ export class SalesController {
     try {
       return await this.service.getAll();
     } catch (error) {
+      this.logger.error(error.message);
       throw error;
     }
   }
@@ -38,6 +42,7 @@ export class SalesController {
     try {
       return await this.service.update(data);
     } catch (error) {
+      this.logger.error(error.message);
       throw error;
     }
   }
@@ -47,6 +52,7 @@ export class SalesController {
     try {
       return await this.service.updateDetail(data);
     } catch (error) {
+      this.logger.error(error.message);
       throw error;
     }
   }
@@ -59,6 +65,7 @@ export class SalesController {
 
       return await this.service.delete(id);
     } catch (error) {
+      this.logger.error(error.message);
       throw error;
     }
   }
@@ -71,6 +78,7 @@ export class SalesController {
 
       return await this.service.deleteDetail(id);
     } catch (error) {
+      this.logger.error(error.message);
       throw error;
     }
   }
