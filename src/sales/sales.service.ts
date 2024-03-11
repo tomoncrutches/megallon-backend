@@ -13,7 +13,7 @@ export class SalesService {
   ) {}
   private readonly logger = new Logger('SalesService');
 
-  async getAll() {
+  async getAll(): Promise<SaleExtended[]> {
     try {
       const sales = await this.prisma.sale.findMany();
       const salesDetails = await this.prisma.saleDetail.findMany();
@@ -60,7 +60,7 @@ export class SalesService {
     }
   }
 
-  async create(payload: SaleToCreate) {
+  async create(payload: SaleToCreate): Promise<Sale> {
     try {
       const sale = await this.prisma.sale.create({ data: payload.data });
       for (const product of payload.items) {
@@ -79,25 +79,28 @@ export class SalesService {
     }
   }
 
-  async update(data: Sale) {
+  async update(data: Sale): Promise<Sale> {
     try {
-      await this.prisma.sale.update({ where: { id: data.id }, data });
+      return await this.prisma.sale.update({ where: { id: data.id }, data });
     } catch (error) {
       this.logger.error(error.message);
       throw error;
     }
   }
 
-  async updateDetail(data: SaleDetail) {
+  async updateDetail(data: SaleDetail): Promise<SaleDetail> {
     try {
-      await this.prisma.saleDetail.update({ where: { id: data.id }, data });
+      return await this.prisma.saleDetail.update({
+        where: { id: data.id },
+        data,
+      });
     } catch (error) {
       this.logger.error(error.message);
       throw error;
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<Sale> {
     try {
       await this.prisma.saleDetail.deleteMany({
         where: {
@@ -115,9 +118,9 @@ export class SalesService {
     }
   }
 
-  async deleteDetail(id: string) {
+  async deleteDetail(id: string): Promise<SaleDetail> {
     try {
-      await this.prisma.saleDetail.delete({
+      return await this.prisma.saleDetail.delete({
         where: {
           id,
         },
