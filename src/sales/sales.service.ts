@@ -1,7 +1,7 @@
+import { Injectable, Logger } from '@nestjs/common';
 import { Product, Sale, SaleDetail } from '@prisma/client';
 import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 
-import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
 
@@ -11,6 +11,7 @@ export class SalesService {
     private prisma: PrismaService,
     private productsService: ProductsService,
   ) {}
+  private readonly logger = new Logger('SalesService');
 
   async getAll() {
     try {
@@ -54,13 +55,8 @@ export class SalesService {
       }
       return finallySales;
     } catch (error) {
-      console.error(
-        'An error has ocurred while fetching sales: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred white fetching sales: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -78,13 +74,8 @@ export class SalesService {
       }
       return sale;
     } catch (error) {
-      console.error(
-        'An error has ocurred while creating sale: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred white creating sale: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -92,13 +83,8 @@ export class SalesService {
     try {
       await this.prisma.sale.update({ where: { id: data.id }, data });
     } catch (error) {
-      console.error(
-        'An error has ocurred while updating sale: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while updating sale: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -106,13 +92,8 @@ export class SalesService {
     try {
       await this.prisma.saleDetail.update({ where: { id: data.id }, data });
     } catch (error) {
-      console.error(
-        'An error has ocurred while updating sale: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while updating sale: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -129,13 +110,8 @@ export class SalesService {
         },
       });
     } catch (error) {
-      console.error(
-        'An error has ocurred while deleting sale: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while deleting sale: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -147,13 +123,8 @@ export class SalesService {
         },
       });
     } catch (error) {
-      console.error(
-        'An error has ocurred while deleting sale: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while deleting sale: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 }
