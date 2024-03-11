@@ -1,10 +1,12 @@
+import { Injectable, Logger } from '@nestjs/common';
+
 import { ClientExtended } from 'src/types/client.types';
-import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ClientsService {
   constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger('ClientsService');
 
   async create(payload: ClientExtended) {
     try {
@@ -21,13 +23,8 @@ export class ClientsService {
         },
       });
     } catch (error) {
-      console.error(
-        'An error has occurred while creating client data: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has occurred while creating client data: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -48,13 +45,8 @@ export class ClientsService {
       }
       return clientsExtended;
     } catch (error) {
-      console.error(
-        'An error has occurred while fetching clients data: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has occurred while fetching clients data: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 }
