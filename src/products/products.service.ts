@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Product } from '@prisma/client';
+import { Product, ProductType } from '@prisma/client';
 import { ProductComplete, RecipeComplete } from 'src/types/product.types';
+
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -17,7 +18,7 @@ export class ProductsService {
     }
   }
 
-  async getAll() {
+  async getAll(): Promise<ProductComplete[]> {
     // The findMany method is used to retrieve all records from the database
     try {
       const products = await this.prisma.product.findMany();
@@ -37,7 +38,7 @@ export class ProductsService {
     }
   }
 
-  async getOne(index: object) {
+  async getOne(index: object): Promise<ProductComplete> {
     // The findFirst method is used to retrieve a single record from the database
     try {
       const product = await this.prisma.product.findFirst({ where: index });
@@ -57,7 +58,7 @@ export class ProductsService {
     }
   }
 
-  async getCompleteRecipes(productId: string) {
+  async getCompleteRecipes(productId: string): Promise<RecipeComplete[]> {
     try {
       const recipes = await this.prisma.materialRecipe.findMany({
         where: { product_id: productId },
@@ -69,14 +70,14 @@ export class ProductsService {
         );
         recipesComplete.push(recipeComplete);
       }
-      return recipes;
+      return recipesComplete;
     } catch (error) {
       this.logger.error(`Error in getCompleteRecipes: ${error.message}`);
       throw error;
     }
   }
 
-  async getRecipesDetails(recipeId: string) {
+  async getRecipesDetails(recipeId: string): Promise<RecipeComplete> {
     try {
       const recipe = await this.prisma.materialRecipe.findFirst({
         where: { id: recipeId },
@@ -93,7 +94,7 @@ export class ProductsService {
     }
   }
 
-  async getType(typeId: string) {
+  async getType(typeId: string): Promise<ProductType> {
     try {
       const type = await this.prisma.productType.findFirst({
         where: { id: typeId },
@@ -105,7 +106,7 @@ export class ProductsService {
     }
   }
 
-  async update(data: Product) {
+  async update(data: Product): Promise<Product> {
     try {
       return await this.prisma.product.update({
         where: {
@@ -119,7 +120,7 @@ export class ProductsService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<Product> {
     try {
       return await this.prisma.product.delete({ where: { id } });
     } catch (error) {

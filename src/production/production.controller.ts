@@ -26,8 +26,8 @@ export class ProductionController {
     try {
       const newProduction = await this.service.create(data, list);
       await this.historyService.create({
-        action: 'Nueva producción',
-        description: `Se llevo a cabo la creacion de la producción del dia ${newProduction.date.toLocaleDateString}.`,
+        action: 'Nueva Producción',
+        description: `Se registró una nueva producción con el ID ${newProduction.id}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
       return newProduction;
@@ -62,8 +62,8 @@ export class ProductionController {
       if (!('id' in data)) throw new ForbiddenException('ID is required.');
       const updatedProduction = await this.service.update(data);
       await this.historyService.create({
-        action: 'Actualización de producción',
-        description: `Se llevo a cabo la actualización de la producción del dia ${updatedProduction.date.toLocaleDateString}.`,
+        action: 'Actualización de Producción',
+        description: `Se actualizó la producción con el ID ${updatedProduction.id}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
       return updatedProduction;
@@ -86,13 +86,13 @@ export class ProductionController {
   async deleteProduction(@Body() data: { id: string }) {
     const { id } = data;
     try {
-      const deleted = await this.service.delete(id);
+      const production = await this.service.delete(id);
       await this.historyService.create({
-        action: 'Eliminación de producción',
-        description: `Se llevo a cabo la eliminación de la producción del dia ${deleted.date.toLocaleDateString}.`,
+        action: 'Eliminación de Producción',
+        description: `Se eliminó la producción con ID ${production.id}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
-      return await this.service.delete(id);
+      return production;
     } catch (error) {
       throw error;
     }

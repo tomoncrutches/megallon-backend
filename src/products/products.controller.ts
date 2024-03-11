@@ -24,13 +24,13 @@ export class ProductsController {
   @Post()
   async create(@Body() data: Product) {
     try {
-      const NewProduct = await this.service.create(data);
+      const newProduct = await this.service.create(data);
       await this.historyService.create({
-        action: 'Nuevo producto',
-        description: `Se llevo a cabo la creacion del producto ${data.name}.`,
+        action: 'Nuevo Producto',
+        description: `Se registró un nuevo producto llamado ${newProduct.name}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
-      return NewProduct;
+      return newProduct;
     } catch (error) {
       throw error;
     }
@@ -62,8 +62,8 @@ export class ProductsController {
       if (!('id' in data)) throw new ForbiddenException('ID is required.');
       const updated = await this.service.update(data);
       this.historyService.create({
-        action: 'Actualizar producto',
-        description: `Se actualizó el producto ${data.name}. `,
+        action: 'Actualización de Producto',
+        description: `Se actualizó el producto ${updated.name}. `,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
       return updated;
@@ -77,9 +77,10 @@ export class ProductsController {
     const { id } = data;
     try {
       if (!id) throw new BadRequestException('ID is required.');
+
       const deleted = await this.service.delete(id);
       this.historyService.create({
-        action: 'Eliminar producto',
+        action: 'Eliminación de Producto',
         description: `Se eliminó el producto ${deleted.name}. `,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });

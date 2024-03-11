@@ -1,8 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { Production, ProductionDetail } from '@prisma/client';
-import { ProductsService } from 'src/products/products.service';
+
+import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductionComplete } from 'src/types/productions.types';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class ProductionService {
@@ -20,7 +21,7 @@ export class ProductionService {
   - data: The data of Production to be created in the database.
   - details: List of ProductionDetail to be created in the database.(this data is used to update the stock of the product in the database.)
   */,
-  ) {
+  ): Promise<Production> {
     try {
       for (const element of details) {
         this.updateProductStock(element['product_Id'], element['quantity']);
@@ -44,7 +45,7 @@ export class ProductionService {
     }
   }
 
-  async getAll() {
+  async getAll(): Promise<ProductionComplete[]> {
     try {
       const productions = await this.prisma.production.findMany();
       const productionCompleteList: ProductionComplete[] = [];
@@ -61,7 +62,7 @@ export class ProductionService {
     }
   }
 
-  async getOne(index: object) {
+  async getOne(index: object): Promise<ProductionComplete> {
     try {
       let production: ProductionComplete;
       production['data'] = await this.prisma.production.findFirst({
@@ -80,7 +81,7 @@ export class ProductionService {
     }
   }
 
-  async update(data: Production) {
+  async update(data: Production): Promise<Production> {
     try {
       return await this.prisma.production.update({
         where: {
@@ -94,7 +95,9 @@ export class ProductionService {
     }
   }
 
-  async updateProductionDetails(data: ProductionDetail) {
+  async updateProductionDetails(
+    data: ProductionDetail,
+  ): Promise<ProductionDetail> {
     try {
       return await this.prisma.productionDetail.update({
         where: {
@@ -108,7 +111,7 @@ export class ProductionService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<Production> {
     try {
       await this.prisma.productionDetail.deleteMany({
         where: { production_id: id },
@@ -120,7 +123,7 @@ export class ProductionService {
     }
   }
 
-  async deleteProductionDetail(id: string) {
+  async deleteProductionDetail(id: string): Promise<ProductionDetail> {
     try {
       return await this.prisma.productionDetail.delete({ where: { id } });
     } catch (error) {

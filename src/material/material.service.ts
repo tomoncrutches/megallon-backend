@@ -8,7 +8,7 @@ export class MaterialService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger('MaterialService');
 
-  async create(data: Material) {
+  async create(data: Material): Promise<Material> {
     try {
       return await this.prisma.material.create({ data });
     } catch (error) {
@@ -17,7 +17,7 @@ export class MaterialService {
     }
   }
 
-  async getAll() {
+  async getAll(): Promise<Material[]> {
     try {
       return await this.prisma.material.findMany();
     } catch (error) {
@@ -26,7 +26,7 @@ export class MaterialService {
     }
   }
 
-  async getOne(index: object) {
+  async getOne(index: object): Promise<Material> {
     try {
       return await this.prisma.material.findFirst({ where: index });
     } catch (error) {
@@ -35,7 +35,7 @@ export class MaterialService {
     }
   }
 
-  async update(data: Material) {
+  async update(data: Material): Promise<Material> {
     try {
       return await this.prisma.material.update({
         where: {
@@ -49,7 +49,7 @@ export class MaterialService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<Material> {
     try {
       return await this.prisma.material.delete({ where: { id } });
     } catch (error) {
