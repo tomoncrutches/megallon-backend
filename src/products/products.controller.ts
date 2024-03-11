@@ -24,7 +24,7 @@ export class ProductsController {
     try {
       return await this.service.create(data);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
@@ -33,18 +33,18 @@ export class ProductsController {
     try {
       return await this.service.getAll();
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
-  @Get(':index')
-  async getOne(@Param() index: object) {
+  @Get(':id')
+  async getOne(@Param() id: object) {
     try {
-      const item = await this.service.getOne({ id: index['index'] });
+      const item = await this.service.getOne(id);
       if (!item) throw new BadRequestException('Product not found.');
       return item;
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
@@ -54,7 +54,7 @@ export class ProductsController {
       if (!('id' in data)) throw new ForbiddenException('ID is required.');
       return await this.service.update(data);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 
@@ -64,7 +64,7 @@ export class ProductsController {
     try {
       return await this.service.delete(id);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw error;
     }
   }
 }

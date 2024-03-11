@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Production, ProductionDetail } from '@prisma/client';
 import { ProductsService } from 'src/products/products.service';
@@ -10,6 +10,7 @@ export class ProductionService {
     private prisma: PrismaService,
     private productsService: ProductsService,
   ) {}
+  private readonly logger = new Logger('Production Service');
 
   async create(
     data: Production,
@@ -27,8 +28,8 @@ export class ProductionService {
       }
       return await this.prisma.production.create({ data });
     } catch (error) {
-      console.error(`Error in create: ${error.message}`);
-      throw new Error('Error creating data in the database');
+      this.logger.error(`Error in create: ${error.message}`);
+      throw error;
     }
   }
 
@@ -38,8 +39,8 @@ export class ProductionService {
       product['stock'] += quantity;
       await this.productsService.update(product.data);
     } catch (error) {
-      console.error(`Error updating product stock: ${error.message}`);
-      throw new Error('Error updating product stock');
+      this.logger.error(`Error in updateProductStock: ${error.message}`);
+      throw error;
     }
   }
 
@@ -55,8 +56,8 @@ export class ProductionService {
       }
       return productionCompleteList;
     } catch (error) {
-      console.error(`Error in getAll: ${error.message}`);
-      throw new Error('Error retrieving data from the database');
+      this.logger.error(`Error in getAll: ${error.message}`);
+      throw error;
     }
   }
 
@@ -66,13 +67,16 @@ export class ProductionService {
       production['data'] = await this.prisma.production.findFirst({
         where: index,
       });
+      if (!production['data']) {
+        throw new NotFoundException('Production not found');
+      }
       production['details'] = await this.prisma.productionDetail.findMany({
         where: index,
       });
       return production;
     } catch (error) {
-      console.error(`Error in getOne: ${error.message}`);
-      throw new Error('Error retrieving data from the database');
+      this.logger.error(`Error in getOne: ${error.message}`);
+      throw error;
     }
   }
 
@@ -85,13 +89,8 @@ export class ProductionService {
         data,
       });
     } catch (error) {
-      console.error(
-        'An error has ocurred while updating production: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while updating production: ${error.message}`,
-      );
+      this.logger.error(`Error in update: ${error.message}`);
+      throw error;
     }
   }
 
@@ -104,13 +103,8 @@ export class ProductionService {
         data,
       });
     } catch (error) {
-      console.error(
-        'An error has ocurred while updating production detail: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while updating production detail: ${error.message}`,
-      );
+      this.logger.error(`Error in updateProductionDetails: ${error.message}`);
+      throw error;
     }
   }
 
@@ -121,8 +115,8 @@ export class ProductionService {
       });
       return await this.prisma.production.delete({ where: { id } });
     } catch (error) {
-      console.error(`Error in delete: ${error.message}`);
-      throw new Error('Error deleting data from the database');
+      this.logger.error(`Error in delete: ${error.message}`);
+      throw error;
     }
   }
 
@@ -130,8 +124,8 @@ export class ProductionService {
     try {
       return await this.prisma.productionDetail.delete({ where: { id } });
     } catch (error) {
-      console.error(`Error in delete: ${error.message}`);
-      throw new Error('Error deleting data from the database');
+      this.logger.error(`Error in deleteProductionDetail: ${error.message}`);
+      throw error;
     }
   }
 }

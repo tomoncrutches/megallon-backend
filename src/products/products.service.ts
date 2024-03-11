@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Product } from '@prisma/client';
 import { ProductComplete, RecipeComplete } from 'src/types/product.types';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -12,8 +12,8 @@ export class ProductsService {
     try {
       return await this.prisma.product.create({ data });
     } catch (error) {
-      console.error(`Error in create: ${error.message}`);
-      throw new Error('Error creating data in the database');
+      this.logger.error(`Error in create: ${error.message}`);
+      throw error;
     }
   }
 
@@ -32,8 +32,8 @@ export class ProductsService {
       }
       return productsComplete;
     } catch (error) {
-      console.error(`Error in getAll: ${error.message}`);
-      throw new Error('Error retrieving data from the database');
+      this.logger.error(`Error in getAll: ${error.message}`);
+      throw error;
     }
   }
 
@@ -42,7 +42,7 @@ export class ProductsService {
     try {
       const product = await this.prisma.product.findFirst({ where: index });
       if (!product) {
-        throw new Error('Product not found');
+        throw new NotFoundException('Product not found');
       } else {
         const type = this.getType(product.type_id);
         const productComplete: ProductComplete = {
@@ -52,8 +52,8 @@ export class ProductsService {
         return productComplete;
       }
     } catch (error) {
-      console.error(`Error in getOne: ${error.message}`);
-      throw new Error('Error retrieving data from the database');
+      this.logger.error(`Error in getOne: ${error.message}`);
+      throw error;
     }
   }
 
@@ -71,8 +71,8 @@ export class ProductsService {
       }
       return recipes;
     } catch (error) {
-      console.error(`Error in getRecipes: ${error.message}`);
-      throw new Error('Error retrieving data from the database');
+      this.logger.error(`Error in getCompleteRecipes: ${error.message}`);
+      throw error;
     }
   }
 
@@ -88,8 +88,8 @@ export class ProductsService {
       };
       return recipeComplete;
     } catch (error) {
-      console.error(`Error in getRecipes: ${error.message}`);
-      throw new Error('Error retrieving data from the database');
+      this.logger.error(`Error in getRecipesDetails: ${error.message}`);
+      throw error;
     }
   }
 
@@ -100,8 +100,8 @@ export class ProductsService {
       });
       return type;
     } catch (error) {
-      console.error(`Error in getType: ${error.message}`);
-      throw new Error('Error retrieving data from the database');
+      this.logger.error(`Error in getType: ${error.message}`);
+      throw error;
     }
   }
 
@@ -114,13 +114,8 @@ export class ProductsService {
         data,
       });
     } catch (error) {
-      console.error(
-        'An error has ocurred while updating product: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while updating product: ${error.message}`,
-      );
+      this.logger.error(`Error in update: ${error.message}`);
+      throw error;
     }
   }
 
@@ -128,8 +123,8 @@ export class ProductsService {
     try {
       return await this.prisma.product.delete({ where: { id } });
     } catch (error) {
-      console.error(`Error in delete: ${error.message}`);
-      throw new Error('Error deleting data from the database');
+      this.logger.error(`Error in delete: ${error.message}`);
+      throw error;
     }
   }
 
@@ -139,8 +134,8 @@ export class ProductsService {
         this.update(element);
       });
     } catch (error) {
-      console.error(`Error in addProduction: ${error.message}`);
-      throw new Error('Error adding production data in the database');
+      this.logger.error(`Error in addProduction: ${error.message}`);
+      throw error;
     }
   }
 }
