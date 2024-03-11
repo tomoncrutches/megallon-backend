@@ -1,22 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+
 import { Material } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MaterialService {
   constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger('MaterialService');
 
   async create(data: Material) {
     try {
       return await this.prisma.material.create({ data });
     } catch (error) {
-      console.error(
-        'An error has ocurred while creating data: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while creating data: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -24,13 +21,8 @@ export class MaterialService {
     try {
       return await this.prisma.material.findMany();
     } catch (error) {
-      console.error(
-        'An error has ocurred while fetching data: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while fetching data: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -38,13 +30,8 @@ export class MaterialService {
     try {
       return await this.prisma.material.findFirst({ where: index });
     } catch (error) {
-      console.error(
-        'An error has ocurred while fetching data detail: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while fetching data detail: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -57,13 +44,8 @@ export class MaterialService {
         data,
       });
     } catch (error) {
-      console.error(
-        'An error has ocurred while updating material: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred while updating material: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 
@@ -71,13 +53,8 @@ export class MaterialService {
     try {
       return await this.prisma.material.delete({ where: { id } });
     } catch (error) {
-      console.error(
-        'An error has ocurred white deleting material: ',
-        error.message,
-      );
-      throw new Error(
-        `An error has ocurred white deleting material: ${error.message}`,
-      );
+      this.logger.error(error.message);
+      throw error;
     }
   }
 }
