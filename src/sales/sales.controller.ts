@@ -7,9 +7,10 @@ import {
   Logger,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { SalesService } from './sales.service';
-import { SaleToCreate } from 'src/types/sale.types';
+import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 import { Sale, SaleDetail } from '@prisma/client';
 import { HistoryService } from 'src/history/history.service';
 
@@ -43,6 +44,16 @@ export class SalesController {
       return await this.service.getAll();
     } catch (error) {
       this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  @Get('detail')
+  async getOne(@Query() sale: SaleExtended) {
+    try {
+      if (!sale.id) throw new ForbiddenException('ID attribute is required.');
+      return await this.service.getOne(sale);
+    } catch (error) {
       throw error;
     }
   }

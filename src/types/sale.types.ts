@@ -1,4 +1,6 @@
-import { Product, Sale } from '@prisma/client';
+import { Client, Sale } from '@prisma/client';
+
+import { ProductComplete } from './product.types';
 
 type ProductBasic = {
   id: string;
@@ -10,7 +12,10 @@ export interface SaleToCreate {
   items: ProductBasic[];
 }
 
-export interface SaleExtended {
-  data: Sale;
-  items: Product[];
+export interface SaleExtended extends Sale {
+  client: Client;
+}
+
+export interface SaleComplete extends SaleExtended {
+  items: ProductComplete[];
 }

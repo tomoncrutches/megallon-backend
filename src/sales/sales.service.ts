@@ -1,8 +1,15 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Product, Sale, SaleDetail } from '@prisma/client';
-import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { Sale, SaleDetail } from '@prisma/client';
+import { SaleComplete, SaleExtended, SaleToCreate } from 'src/types/sale.types';
 
+import { ClientsService } from 'src/clients/clients.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ProductComplete } from 'src/types/product.types';
 import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
@@ -10,52 +17,71 @@ export class SalesService {
   constructor(
     private prisma: PrismaService,
     private productsService: ProductsService,
+    private clientsService: ClientsService,
   ) {}
   private readonly logger = new Logger('SalesService');
 
   async getAll(): Promise<SaleExtended[]> {
     try {
       const sales = await this.prisma.sale.findMany();
-      const salesDetails = await this.prisma.saleDetail.findMany();
-
-      const extendedSales = sales.map((sale) => {
-        return {
-          ...sale,
-          items: salesDetails.filter(
-            (saleDetail) => saleDetail.sale_id === sale.id,
-          ),
-        };
-      });
-      const finallySales: SaleExtended[] = [];
-
-      for (const sale of extendedSales) {
-        const items = await Promise.all(
-          sale.items.map((item) => {
-            return new Promise(async (resolve) => {
-              const product = await this.productsService.getOne({
-                id: item.product_id,
-              });
-              resolve({
-                id: item.id,
-                quantity: item.quantity,
-                ...product,
-              });
+      const extendedSales = await Promise.all(
+        sales.map((sale) => {
+          return new Promise(async (resolve) => {
+            const client = await this.clientsService.getOne({
+              id: sale.client_id,
             });
-          }),
-        );
-        finallySales.push({
-          data: {
-            id: sale.id,
-            date: sale.date,
-            total: sale.total,
-            client_id: sale.client_id,
-          },
-          items: items as Product[],
-        });
-      }
-      return finallySales;
+            resolve({
+              ...sale,
+              client_id: undefined,
+              client,
+            } as SaleExtended);
+          });
+        }),
+      );
+      return extendedSales as SaleExtended[];
     } catch (error) {
       this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async getOne(sale: SaleExtended): Promise<SaleComplete> {
+    try {
+      const dbSale = await this.prisma.sale.findFirst({ where: sale });
+      if (!dbSale) throw new NotFoundException("Sale doesn't found.");
+
+      const client = await this.clientsService.getOne({
+        id: dbSale.client_id,
+      });
+      const details = await this.prisma.saleDetail.findMany({
+        where: { sale_id: dbSale.id },
+      });
+      if (details.length === 0)
+        throw new NotFoundException("Details doesn't found.");
+
+      const productDetails = await Promise.all(
+        details.map((detail) => {
+          return new Promise(async (resolve) => {
+            const product = await this.productsService.getOne({
+              id: detail.product_id,
+            });
+            const { data, type } = product;
+            resolve({
+              quantity: detail.quantity,
+              ...data,
+              type,
+              type_id: undefined,
+            });
+          });
+        }),
+      );
+      return {
+        ...dbSale,
+        client_id: undefined,
+        client,
+        items: productDetails as ProductComplete[],
+      };
+    } catch (error) {
       throw error;
     }
   }
