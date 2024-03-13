@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Production, ProductionDetail } from '@prisma/client';
 
+import { OptionalProduction } from 'src/types/productions.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductionComplete } from 'src/types/productions.types';
 import { ProductsService } from 'src/products/products.service';
@@ -62,19 +63,19 @@ export class ProductionService {
     }
   }
 
-  async getOne(index: object): Promise<ProductionComplete> {
+  async getOne(production: OptionalProduction): Promise<ProductionComplete> {
     try {
-      let production: ProductionComplete;
-      production['data'] = await this.prisma.production.findFirst({
-        where: index,
+      let dbProduction: ProductionComplete;
+      dbProduction['data'] = await this.prisma.production.findFirst({
+        where: production,
       });
-      if (!production['data']) {
+      if (!dbProduction['data']) {
         throw new NotFoundException('Production not found');
       }
-      production['details'] = await this.prisma.productionDetail.findMany({
-        where: index,
+      dbProduction['details'] = await this.prisma.productionDetail.findMany({
+        where: production,
       });
-      return production;
+      return dbProduction;
     } catch (error) {
       this.logger.error(`Error in getOne: ${error.message}`);
       throw error;

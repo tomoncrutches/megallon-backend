@@ -1,13 +1,12 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   ForbiddenException,
   Get,
-  Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 
 import { Production, ProductionDetail } from '@prisma/client';
@@ -45,12 +44,13 @@ export class ProductionController {
     }
   }
 
-  @Get(':id')
-  async getOne(@Param() id: object) {
+  @Get('detail')
+  async getOne(@Query() production: Production) {
     try {
-      const item = await this.service.getOne(id);
-      if (!item) throw new BadRequestException('Production not found.');
-      return item;
+      if (Object.entries(production).length === 0)
+        throw new ForbiddenException('Attribute is required.');
+
+      return await this.service.getOne(production);
     } catch (error) {
       throw error;
     }

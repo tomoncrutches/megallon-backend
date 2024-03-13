@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,8 +6,8 @@ import {
   Get,
   Post,
   Put,
-  Param,
   Logger,
+  Query,
 } from '@nestjs/common';
 
 import { Material } from '@prisma/client';
@@ -49,13 +48,12 @@ export class MaterialController {
     }
   }
 
-  @Get(':index')
-  async getOne(@Param() index: object) {
+  @Get('detail')
+  async getOne(@Query() material: Material) {
     try {
-      const item = await this.service.getOne({ id: index['index'] });
-      if (!item) throw new BadRequestException('Material not found.');
-
-      return item;
+      if (Object.entries(material).length === 0)
+        throw new ForbiddenException('Attribute is required.');
+      return await this.service.getOne(material);
     } catch (error) {
       this.logger.error(error.message);
       throw error;

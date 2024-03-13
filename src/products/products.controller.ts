@@ -7,7 +7,7 @@ import {
   Get,
   Post,
   Put,
-  Param,
+  Query,
 } from '@nestjs/common';
 
 import { Product } from '@prisma/client';
@@ -45,12 +45,13 @@ export class ProductsController {
     }
   }
 
-  @Get(':id')
-  async getOne(@Param() id: object) {
+  @Get('detail')
+  async getOne(@Query() product: Product) {
     try {
-      const item = await this.service.getOne(id);
-      if (!item) throw new BadRequestException('Product not found.');
-      return item;
+      if (Object.entries(product).length === 0)
+        throw new ForbiddenException('Attribute is required.');
+
+      return await this.service.getOne(product);
     } catch (error) {
       throw error;
     }

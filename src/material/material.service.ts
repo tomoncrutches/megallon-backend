@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { Material } from '@prisma/client';
+import { OptionalMaterial } from 'src/types/material.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -26,9 +27,14 @@ export class MaterialService {
     }
   }
 
-  async getOne(index: object): Promise<Material> {
+  async getOne(material: OptionalMaterial): Promise<Material> {
     try {
-      return await this.prisma.material.findFirst({ where: index });
+      const dbMaterial = await this.prisma.material.findFirst({
+        where: material,
+      });
+      if (!dbMaterial) throw new NotFoundException('Material not found.');
+
+      return dbMaterial;
     } catch (error) {
       this.logger.error(error.message);
       throw error;

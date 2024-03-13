@@ -1,6 +1,10 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  OptionalProduct,
+  ProductComplete,
+  RecipeComplete,
+} from 'src/types/product.types';
 import { Product, ProductType } from '@prisma/client';
-import { ProductComplete, RecipeComplete } from 'src/types/product.types';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -38,20 +42,18 @@ export class ProductsService {
     }
   }
 
-  async getOne(index: object): Promise<ProductComplete> {
+  async getOne(product: OptionalProduct): Promise<ProductComplete> {
     // The findFirst method is used to retrieve a single record from the database
     try {
-      const product = await this.prisma.product.findFirst({ where: index });
-      if (!product) {
-        throw new NotFoundException('Product not found');
-      } else {
-        const type = this.getType(product.type_id);
-        const productComplete: ProductComplete = {
-          data: product,
-          type: await type,
-        };
-        return productComplete;
-      }
+      const dbProduct = await this.prisma.product.findFirst({ where: product });
+      if (!dbProduct) throw new NotFoundException('Product not found');
+
+      const type = await this.getType(product.type_id);
+      const productComplete: ProductComplete = {
+        data: dbProduct,
+        type: type,
+      };
+      return productComplete;
     } catch (error) {
       this.logger.error(`Error in getOne: ${error.message}`);
       throw error;
