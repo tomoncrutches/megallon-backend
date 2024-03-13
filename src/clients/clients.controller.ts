@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { HistoryService } from 'src/history/history.service';
 import { Client } from '@prisma/client';
+import { isEmpty } from 'src/lib/utils';
 
 @Controller('clients')
 export class ClientsController {
@@ -49,7 +50,7 @@ export class ClientsController {
   @Get('detail')
   async getOne(@Query() client: Client) {
     try {
-      if (Object.entries(client).length === 0)
+      if (isEmpty(client))
         throw new ForbiddenException('Attribute is required.');
       return await this.service.getOne(client);
     } catch (error) {

@@ -13,6 +13,7 @@ import {
 import { Material } from '@prisma/client';
 import { MaterialService } from './material.service';
 import { HistoryService } from 'src/history/history.service';
+import { isEmpty } from 'src/lib/utils';
 
 @Controller('material')
 export class MaterialController {
@@ -51,7 +52,7 @@ export class MaterialController {
   @Get('detail')
   async getOne(@Query() material: Material) {
     try {
-      if (Object.entries(material).length === 0)
+      if (isEmpty(material))
         throw new ForbiddenException('Attribute is required.');
       return await this.service.getOne(material);
     } catch (error) {

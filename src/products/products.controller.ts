@@ -13,6 +13,7 @@ import {
 import { Product } from '@prisma/client';
 import { ProductsService } from './products.service';
 import { HistoryService } from 'src/history/history.service';
+import { isEmpty } from 'src/lib/utils';
 
 @Controller('products')
 export class ProductsController {
@@ -48,7 +49,7 @@ export class ProductsController {
   @Get('detail')
   async getOne(@Query() product: Product) {
     try {
-      if (Object.entries(product).length === 0)
+      if (isEmpty(product))
         throw new ForbiddenException('Attribute is required.');
 
       return await this.service.getOne(product);
