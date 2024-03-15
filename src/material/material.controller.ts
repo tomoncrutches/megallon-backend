@@ -9,30 +9,54 @@ import {
   Put,
   Param,
   Logger,
+  Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 
 import { Material } from '@prisma/client';
 import { MaterialService } from './material.service';
 import { HistoryService } from 'src/history/history.service';
+import { isEmpty } from 'src/lib/utils';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('material')
 export class MaterialController {
   constructor(
     private readonly service: MaterialService,
     private readonly historyService: HistoryService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
   private readonly logger = new Logger('MaterialController');
 
   @Post()
-  async create(@Body() data: Material) {
+  @UseInterceptors(
+    FileInterceptor('image_file', {
+      dest: './.temp',
+    }),
+  )
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: { material: Material | string },
+  ) {
+    const payload: Material = JSON.parse(data.material as string);
+
     try {
-      const material = await this.service.create(data);
+      const { secure_url } = await this.cloudinaryService.uploadFile(
+        file.path,
+        'material',
+      );
+      const material = await this.service.create({
+        ...payload,
+        image: secure_url,
+      });
       await this.historyService.create({
         action: 'Nueva materia prima',
         description: `Se llevo a cabo la creación de la materia prima ${data.name}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
-      return material;
+      return { material };
     } catch (error) {
       this.logger.error(error.message);
       throw error;
