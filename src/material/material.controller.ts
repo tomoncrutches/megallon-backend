@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,7 +6,6 @@ import {
   Get,
   Post,
   Put,
-  Param,
   Logger,
   Query,
   UseInterceptors,
@@ -52,8 +50,8 @@ export class MaterialController {
         image: secure_url,
       });
       await this.historyService.create({
-        action: 'Nueva materia prima',
-        description: `Se llevo a cabo la creación de la materia prima ${data.name}.`,
+        action: 'Nuevo Material',
+        description: `Se registró un nuevo material llamado ${material.name}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
       return { material };
@@ -73,13 +71,12 @@ export class MaterialController {
     }
   }
 
-  @Get(':index')
-  async getOne(@Param() index: object) {
+  @Get('detail')
+  async getOne(@Query() material: Material) {
     try {
-      const item = await this.service.getOne({ id: index['index'] });
-      if (!item) throw new BadRequestException('Material not found.');
-
-      return item;
+      if (isEmpty(material))
+        throw new ForbiddenException('Attribute is required.');
+      return await this.service.getOne(material);
     } catch (error) {
       this.logger.error(error.message);
       throw error;
@@ -93,8 +90,8 @@ export class MaterialController {
 
       const material = await this.service.update(data);
       await this.historyService.create({
-        action: 'Actualizar materia prima',
-        description: `Se llevó a cabo la actualización de la materia prima ${data.name}.`,
+        action: 'Actualización de Material',
+        description: `Se actualizó el material ${material.name}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
       return material;
@@ -112,8 +109,8 @@ export class MaterialController {
 
       const material = await this.service.delete(id);
       await this.historyService.create({
-        action: 'Eliminar materia prima',
-        description: `Se llevó a cabo eliminación de la materia prima ${material.name}.`,
+        action: 'Eliminación de Material',
+        description: `Se eliminó el material ${material.name}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
       return material;
