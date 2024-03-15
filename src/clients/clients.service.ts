@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ClientExtended, OptionalClient } from 'src/types/client.types';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
-import { ClientExtended } from 'src/types/client.types';
+import { Client } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -8,7 +9,7 @@ export class ClientsService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger('ClientsService');
 
-  async create(payload: ClientExtended) {
+  async create(payload: ClientExtended): Promise<Client> {
     try {
       const coords = await this.prisma.clientCoordinate.create({
         data: {
@@ -28,7 +29,7 @@ export class ClientsService {
     }
   }
 
-  async getAll() {
+  async getAll(): Promise<ClientExtended[]> {
     try {
       const clients = await this.prisma.client.findMany();
       const clientsExtended: ClientExtended[] = [];
@@ -46,6 +47,17 @@ export class ClientsService {
       return clientsExtended;
     } catch (error) {
       this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async getOne(client: OptionalClient): Promise<Client> {
+    try {
+      const dbClient = await this.prisma.client.findFirst({ where: client });
+      if (!dbClient) throw new NotFoundException("Client doesn't exists.");
+
+      return dbClient;
+    } catch (error) {
       throw error;
     }
   }

@@ -7,20 +7,31 @@ import {
   Logger,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { SalesService } from './sales.service';
-import { SaleToCreate } from 'src/types/sale.types';
+import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 import { Sale, SaleDetail } from '@prisma/client';
+import { HistoryService } from 'src/history/history.service';
 
 @Controller('sales')
 export class SalesController {
-  constructor(private readonly service: SalesService) {}
+  constructor(
+    private readonly service: SalesService,
+    private readonly historyService: HistoryService,
+  ) {}
   private readonly logger = new Logger('SalesController');
 
   @Post()
   async create(@Body() data: SaleToCreate) {
     try {
-      return await this.service.create(data);
+      const sale = await this.service.create(data);
+      await this.historyService.create({
+        action: 'Nueva Venta',
+        description: `Se registró una nueva venta con el ID ${sale.id}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return sale;
     } catch (error) {
       this.logger.error(error.message);
       throw error;
@@ -37,10 +48,26 @@ export class SalesController {
     }
   }
 
+  @Get('detail')
+  async getOne(@Query() sale: SaleExtended) {
+    try {
+      if (!sale.id) throw new ForbiddenException('ID attribute is required.');
+      return await this.service.getOne(sale);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @Put()
   async update(@Body() data: Sale) {
     try {
-      return await this.service.update(data);
+      const sale = await this.service.update(data);
+      await this.historyService.create({
+        action: 'Actualización de Venta',
+        description: `Se actualizó la venta con ID ${sale.id}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return sale;
     } catch (error) {
       this.logger.error(error.message);
       throw error;
@@ -50,7 +77,13 @@ export class SalesController {
   @Put('detail')
   async updateDetail(@Body() data: SaleDetail) {
     try {
-      return await this.service.updateDetail(data);
+      const detail = await this.service.updateDetail(data);
+      await this.historyService.create({
+        action: 'Actualización de Detalle de Venta',
+        description: `Se actualizó el detalle con ID ${detail.id} de la venta con ID ${detail.sale_id}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return detail;
     } catch (error) {
       this.logger.error(error.message);
       throw error;
@@ -63,7 +96,13 @@ export class SalesController {
     try {
       if (!id) throw new ForbiddenException('ID is required.');
 
-      return await this.service.delete(id);
+      const sale = await this.service.delete(id);
+      await this.historyService.create({
+        action: 'Eliminación de Venta',
+        description: `Se eliminó la venta con ID ${sale.id}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return sale;
     } catch (error) {
       this.logger.error(error.message);
       throw error;
@@ -76,7 +115,13 @@ export class SalesController {
     try {
       if (!id) throw new ForbiddenException('ID is required.');
 
-      return await this.service.deleteDetail(id);
+      const detail = await this.service.deleteDetail(id);
+      await this.historyService.create({
+        action: 'Eliminación de Detalle de Venta',
+        description: `Se eliminó el detalle con ID ${detail.id} de la venta con ID ${detail.sale_id}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return detail;
     } catch (error) {
       this.logger.error(error.message);
       throw error;

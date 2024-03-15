@@ -9,3 +9,7 @@ export type RecipeComplete = {
   data: any;
   product: Product;
 };
+
+export type OptionalProduct = {
+  [key in keyof Product]?: Product[key];
+};
