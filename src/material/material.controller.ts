@@ -54,7 +54,7 @@ export class MaterialController {
         description: `Se registró un nuevo material llamado ${material.name}.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
-      return { material };
+      return material;
     } catch (error) {
       this.logger.error(error.message);
       throw error;
