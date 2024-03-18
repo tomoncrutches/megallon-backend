@@ -82,13 +82,28 @@ export class MaterialController {
       throw error;
     }
   }
-
+  @UseInterceptors(
+    FileInterceptor('image_file', {
+      dest: './.temp',
+    }),
+  )
   @Put()
-  async update(@Body() data: Material) {
+  async update(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: { material: Material | string },
+  ) {
+    const payload: Material = JSON.parse(data.material as string);
     try {
-      if (!('id' in data)) throw new ForbiddenException('ID is required.');
+      if (!('id' in payload)) throw new ForbiddenException('ID is required.');
 
-      const material = await this.service.update(data);
+      const imageURL: string = file
+        ? (await this.cloudinaryService.uploadFile(file.path, 'material'))
+            .secure_url
+        : payload.image;
+      const material = await this.service.update({
+        ...payload,
+        image: imageURL,
+      });
       await this.historyService.create({
         action: 'Actualización de Material',
         description: `Se actualizó el material ${material.name}.`,
