@@ -4,6 +4,7 @@ import { ProductComplete } from './product.types';
 
 type ProductBasic = {
   id: string;
+  price: number;
   quantity: number;
 };
 

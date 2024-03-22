@@ -93,11 +93,16 @@ export class SalesService {
         const productDetail = await this.productsService.getOne({
           id: product.id,
         });
-        if (productDetail.data.stock < product.quantity)
+        if (productDetail.data.stock < product.quantity) {
+          await this.prisma.sale.delete({
+            where: {
+              id: sale.id,
+            },
+          });
           throw new BadRequestException(
             'The selected quantity is not available.',
           );
-
+        }
         await this.prisma.saleDetail.create({
           data: {
             quantity: product.quantity,
