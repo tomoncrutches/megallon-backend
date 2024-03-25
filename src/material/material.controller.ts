@@ -75,7 +75,7 @@ export class MaterialController {
   async getOne(@Query() material: Material) {
     try {
       if (isEmpty(material))
-        throw new ForbiddenException('Attribute is required.');
+        throw new ForbiddenException('Los atributos son requeridos.');
       return await this.service.getOne(material);
     } catch (error) {
       this.logger.error(error.message);
@@ -94,7 +94,8 @@ export class MaterialController {
   ) {
     const payload: Material = JSON.parse(data.material as string);
     try {
-      if (!('id' in payload)) throw new ForbiddenException('ID is required.');
+      if (!('id' in payload))
+        throw new ForbiddenException('El ID es requerido.');
 
       const imageURL: string = file
         ? (await this.cloudinaryService.uploadFile(file.path, 'material'))
@@ -120,7 +121,7 @@ export class MaterialController {
   async delete(@Body() data: { id: string }) {
     const { id } = data;
     try {
-      if (!id) throw new ForbiddenException('ID is required.');
+      if (!id) throw new ForbiddenException('El ID es requerido.');
 
       const material = await this.service.delete(id);
       await this.historyService.create({

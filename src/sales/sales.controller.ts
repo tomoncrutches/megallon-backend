@@ -51,7 +51,7 @@ export class SalesController {
   @Get('detail')
   async getOne(@Query() sale: SaleExtended) {
     try {
-      if (!sale.id) throw new ForbiddenException('ID attribute is required.');
+      if (!sale.id) throw new ForbiddenException('El ID es requerido.');
       return await this.service.getOne(sale);
     } catch (error) {
       throw error;
@@ -94,7 +94,7 @@ export class SalesController {
   async delete(@Body() data: { id: string }) {
     const { id } = data;
     try {
-      if (!id) throw new ForbiddenException('ID is required.');
+      if (!id) throw new ForbiddenException('El ID es requerido.');
 
       const sale = await this.service.delete(id);
       await this.historyService.create({
@@ -113,7 +113,7 @@ export class SalesController {
   async deleteDetail(@Body() data: { id: string }) {
     const { id } = data;
     try {
-      if (!id) throw new ForbiddenException('ID is required.');
+      if (!id) throw new ForbiddenException('El ID es requerido.');
 
       const detail = await this.service.deleteDetail(id);
       await this.historyService.create({

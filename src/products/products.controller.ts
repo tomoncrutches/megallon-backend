@@ -50,7 +50,7 @@ export class ProductsController {
   async getOne(@Query() product: Product) {
     try {
       if (isEmpty(product))
-        throw new ForbiddenException('Attribute is required.');
+        throw new ForbiddenException('Los atributos son requeridos.');
 
       return await this.service.getOne(product);
     } catch (error) {
@@ -61,7 +61,7 @@ export class ProductsController {
   @Put()
   async update(@Body() data: Product) {
     try {
-      if (!('id' in data)) throw new ForbiddenException('ID is required.');
+      if (!('id' in data)) throw new ForbiddenException('El ID es requerido.');
       const updated = await this.service.update(data);
       this.historyService.create({
         action: 'Actualización de Producto',
@@ -78,7 +78,7 @@ export class ProductsController {
   async delete(@Body() data: { id: string }) {
     const { id } = data;
     try {
-      if (!id) throw new BadRequestException('ID is required.');
+      if (!id) throw new BadRequestException('El ID es requerido.');
 
       const deleted = await this.service.delete(id);
       this.historyService.create({

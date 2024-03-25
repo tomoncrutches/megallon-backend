@@ -54,7 +54,7 @@ export class ClientsService {
   async getOne(client: OptionalClient): Promise<Client> {
     try {
       const dbClient = await this.prisma.client.findFirst({ where: client });
-      if (!dbClient) throw new NotFoundException("Client doesn't exists.");
+      if (!dbClient) throw new NotFoundException('El cliente no existe.');
 
       return dbClient;
     } catch (error) {

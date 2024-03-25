@@ -46,7 +46,8 @@ export class ProductsService {
     // The findFirst method is used to retrieve a single record from the database
     try {
       const dbProduct = await this.prisma.product.findFirst({ where: product });
-      if (!dbProduct) throw new NotFoundException('Product not found');
+      if (!dbProduct)
+        throw new NotFoundException('El producto no fue encontrado.');
 
       const type = await this.getType(product.type_id);
       const productComplete: ProductComplete = {

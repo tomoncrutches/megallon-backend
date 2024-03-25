@@ -32,7 +32,8 @@ export class MaterialService {
       const dbMaterial = await this.prisma.material.findFirst({
         where: material,
       });
-      if (!dbMaterial) throw new NotFoundException('Material not found.');
+      if (!dbMaterial)
+        throw new NotFoundException('El material no fue encontrado.');
 
       return dbMaterial;
     } catch (error) {

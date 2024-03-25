@@ -51,7 +51,7 @@ export class ClientsController {
   async getOne(@Query() client: Client) {
     try {
       if (isEmpty(client))
-        throw new ForbiddenException('Attribute is required.');
+        throw new ForbiddenException('Los atributos son requeridos.');
       return await this.service.getOne(client);
     } catch (error) {
       throw error;

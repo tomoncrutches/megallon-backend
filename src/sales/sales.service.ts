@@ -48,7 +48,7 @@ export class SalesService {
   async getOne(sale: SaleExtended): Promise<SaleComplete> {
     try {
       const dbSale = await this.prisma.sale.findFirst({ where: sale });
-      if (!dbSale) throw new NotFoundException("Sale doesn't found.");
+      if (!dbSale) throw new NotFoundException('La venta no fue encontrada.');
 
       const client = await this.clientsService.getOne({
         id: dbSale.client_id,
@@ -57,7 +57,9 @@ export class SalesService {
         where: { sale_id: dbSale.id },
       });
       if (details.length === 0)
-        throw new NotFoundException("Details doesn't found.");
+        throw new NotFoundException(
+          'El detalle de la venta no fue encontrado.',
+        );
 
       const productDetails = await Promise.all(
         details.map((detail) => {
