@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { LogBasic, LogComplete } from 'src/types/history.types';
 
 import { Log } from '@prisma/client';
-import { LogBasic, LogComplete } from 'src/types/history.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -19,7 +19,11 @@ export class HistoryService {
         });
         logsComplete.push({ ...log, user: { ...user, password: undefined } });
       }
-      return logsComplete;
+      const sortedLogs = logsComplete.sort((logA, logB) => {
+        return new Date(logB.date).getTime() - new Date(logA.date).getTime();
+      });
+
+      return sortedLogs;
     } catch (error) {
       this.logger.error(`Error in getAll: ${error.message}`);
       throw error;
