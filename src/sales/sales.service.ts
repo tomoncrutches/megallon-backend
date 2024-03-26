@@ -91,32 +91,58 @@ export class SalesService {
   async create(payload: SaleToCreate): Promise<Sale> {
     try {
       const sale = await this.prisma.sale.create({ data: payload.data });
-      for (const product of payload.items) {
+
+      let noStockAvailable: boolean;
+      let i = 0;
+      while (!noStockAvailable && i < payload.items.length) {
+        const product = payload.items[i];
         const productDetail = await this.productsService.getOne({
           id: product.id,
         });
-        if (productDetail.data.stock < product.quantity) {
-          await this.prisma.sale.delete({
-            where: {
-              id: sale.id,
+        if (productDetail.data.stock < product.quantity)
+          noStockAvailable = true;
+        else {
+          await this.prisma.saleDetail.create({
+            data: {
+              quantity: product.quantity,
+              product_id: product.id,
+              sale_id: sale.id,
             },
           });
-          throw new BadRequestException(
-            'The selected quantity is not available.',
-          );
+          await this.productsService.update({
+            ...productDetail.data,
+            stock: productDetail.data.stock - product.quantity,
+          });
+
+          i++;
         }
-        await this.prisma.saleDetail.create({
-          data: {
-            quantity: product.quantity,
-            product_id: product.id,
+      }
+      if (noStockAvailable) {
+        for (const product of payload.items) {
+          const productDetail = await this.productsService.getOne({
+            id: product.id,
+          });
+          if (productDetail.data.stock > product.quantity)
+            await this.productsService.update({
+              ...productDetail.data,
+              stock: productDetail.data.stock + product.quantity,
+            });
+        }
+        await this.prisma.saleDetail.deleteMany({
+          where: {
             sale_id: sale.id,
           },
         });
-        await this.productsService.update({
-          ...productDetail.data,
-          stock: productDetail.data.stock - product.quantity,
+        await this.prisma.sale.delete({
+          where: {
+            id: sale.id,
+          },
         });
+        throw new BadRequestException(
+          'No hay suficiente stock de los productos seleccionados.',
+        );
       }
+
       return sale;
     } catch (error) {
       this.logger.error(error.message);
