@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LogBasic, LogComplete } from 'src/types/history.types';
 
 import { Log } from '@prisma/client';
+import { LogBasic } from 'src/types/history.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -9,17 +9,21 @@ export class HistoryService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger('History Service');
 
-  async getAll(): Promise<LogComplete[]> {
+  async getAll(): Promise<Log[]> {
     try {
-      const logsComplete: LogComplete[] = [];
-      const logs = await this.prisma.log.findMany();
-      for (const log of logs) {
-        const user = await this.prisma.user.findUnique({
-          where: { id: log.user_id },
-        });
-        logsComplete.push({ ...log, user: { ...user, password: undefined } });
-      }
-      const sortedLogs = logsComplete.sort((logA, logB) => {
+      const logs = await this.prisma.log.findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+              password: false,
+            },
+          },
+        },
+      });
+      const sortedLogs = logs.sort((logA, logB) => {
         return new Date(logB.date).getTime() - new Date(logA.date).getTime();
       });
 

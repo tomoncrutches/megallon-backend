@@ -29,22 +29,13 @@ export class ClientsService {
     }
   }
 
-  async getAll(): Promise<ClientExtended[]> {
+  async getAll(): Promise<Client[]> {
     try {
-      const clients = await this.prisma.client.findMany();
-      const clientsExtended: ClientExtended[] = [];
-
-      for (const client of clients) {
-        const coords = await this.prisma.clientCoordinate.findUnique({
-          where: { id: client.address_id },
-        });
-
-        clientsExtended.push({
-          data: client,
-          coords,
-        });
-      }
-      return clientsExtended;
+      return this.prisma.client.findMany({
+        include: {
+          address: true,
+        },
+      });
     } catch (error) {
       this.logger.error(error.message);
       throw error;
