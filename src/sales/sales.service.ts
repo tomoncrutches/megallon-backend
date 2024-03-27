@@ -63,7 +63,11 @@ export class SalesService {
       const dbSale = await this.prisma.sale.findFirst({
         where: sale,
         include: {
-          client: true,
+          client: {
+            include: {
+              address: true,
+            },
+          },
           saleDetail: {
             include: {
               product: {
