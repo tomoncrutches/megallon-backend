@@ -24,6 +24,9 @@ export class SalesService {
         include: {
           client: true,
         },
+        orderBy: {
+          date: 'desc',
+        },
       });
     } catch (error) {
       this.logger.error(error.message);
@@ -48,6 +51,9 @@ export class SalesService {
       },
       include: {
         client: true,
+      },
+      orderBy: {
+        date: 'desc',
       },
     });
   }

@@ -11,7 +11,7 @@ export class HistoryService {
 
   async getAll(): Promise<Log[]> {
     try {
-      const logs = await this.prisma.log.findMany({
+      return await this.prisma.log.findMany({
         include: {
           user: {
             select: {
@@ -22,12 +22,10 @@ export class HistoryService {
             },
           },
         },
+        orderBy: {
+          date: 'desc',
+        },
       });
-      const sortedLogs = logs.sort((logA, logB) => {
-        return new Date(logB.date).getTime() - new Date(logA.date).getTime();
-      });
-
-      return sortedLogs;
     } catch (error) {
       this.logger.error(`Error in getAll: ${error.message}`);
       throw error;
