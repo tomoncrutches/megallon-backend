@@ -48,6 +48,16 @@ export class SalesController {
     }
   }
 
+  @Get('lastweek')
+  async getLastWeek() {
+    try {
+      return await this.service.getLastWeek();
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
   @Get('detail')
   async getOne(@Query() sale: SaleExtended) {
     try {

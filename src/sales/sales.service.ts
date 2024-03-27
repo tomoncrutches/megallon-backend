@@ -45,6 +45,27 @@ export class SalesService {
     }
   }
 
+  async getLastWeek(): Promise<SaleExtended[]> {
+    const currentDate = new Date();
+
+    const lastWeekStartDate = new Date(currentDate);
+    lastWeekStartDate.setDate(currentDate.getDate() - 7);
+
+    const lastWeekEndDate = new Date(currentDate);
+
+    return await this.prisma.sale.findMany({
+      where: {
+        date: {
+          gte: lastWeekStartDate,
+          lte: lastWeekEndDate,
+        },
+      },
+      include: {
+        client: true,
+      },
+    });
+  }
+
   async getOne(sale: SaleExtended): Promise<SaleComplete> {
     try {
       const dbSale = await this.prisma.sale.findFirst({ where: sale });
