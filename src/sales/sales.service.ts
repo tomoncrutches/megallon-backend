@@ -98,8 +98,7 @@ export class SalesService {
         const productDetail = await this.productsService.getOne({
           id: product.id,
         });
-        if (productDetail.data.stock < product.quantity)
-          noStockAvailable = true;
+        if (productDetail.stock < product.quantity) noStockAvailable = true;
         else {
           await this.prisma.saleDetail.create({
             data: {
@@ -109,8 +108,8 @@ export class SalesService {
             },
           });
           await this.productsService.update({
-            ...productDetail.data,
-            stock: productDetail.data.stock - product.quantity,
+            ...productDetail,
+            stock: productDetail.stock - product.quantity,
           });
 
           i++;
@@ -121,10 +120,10 @@ export class SalesService {
           const productDetail = await this.productsService.getOne({
             id: product.id,
           });
-          if (productDetail.data.stock > product.quantity)
+          if (productDetail.stock > product.quantity)
             await this.productsService.update({
-              ...productDetail.data,
-              stock: productDetail.data.stock + product.quantity,
+              ...productDetail,
+              stock: productDetail.stock + product.quantity,
             });
         }
         await this.prisma.saleDetail.deleteMany({

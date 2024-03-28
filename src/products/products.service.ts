@@ -1,9 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import {
-  OptionalProduct,
-  ProductComplete,
-  RecipeComplete,
-} from 'src/types/product.types';
+import { OptionalProduct, RecipeComplete } from 'src/types/product.types';
 import { Product, ProductType } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -22,39 +18,26 @@ export class ProductsService {
     }
   }
 
-  async getAll(): Promise<ProductComplete[]> {
+  async getAll(): Promise<Product[]> {
     // The findMany method is used to retrieve all records from the database
     try {
-      const products = await this.prisma.product.findMany();
-      const productsComplete: ProductComplete[] = [];
-      for (const product of products) {
-        const type = this.getType(product.type_id);
-        const productComplete: ProductComplete = {
-          data: product,
-          type: await type,
-        };
-        productsComplete.push(productComplete);
-      }
-      return productsComplete;
+      return await this.prisma.product.findMany({ include: { type: true } });
     } catch (error) {
       this.logger.error(`Error in getAll: ${error.message}`);
       throw error;
     }
   }
 
-  async getOne(product: OptionalProduct): Promise<ProductComplete> {
+  async getOne(product: OptionalProduct): Promise<Product> {
     // The findFirst method is used to retrieve a single record from the database
     try {
-      const dbProduct = await this.prisma.product.findFirst({ where: product });
+      const dbProduct = await this.prisma.product.findFirst({
+        where: product,
+        include: { type: true },
+      });
       if (!dbProduct)
         throw new NotFoundException('El producto no fue encontrado.');
-
-      const type = await this.getType(product.type_id);
-      const productComplete: ProductComplete = {
-        data: dbProduct,
-        type: type,
-      };
-      return productComplete;
+      return dbProduct;
     } catch (error) {
       this.logger.error(`Error in getOne: ${error.message}`);
       throw error;
@@ -88,7 +71,7 @@ export class ProductsService {
       const product = await this.getOne({ id: recipe.product_id });
       const recipeComplete: RecipeComplete = {
         data: recipe,
-        product: product.data,
+        product: product,
       };
       return recipeComplete;
     } catch (error) {
