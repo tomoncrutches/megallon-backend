@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { Sale, SaleDetail } from '@prisma/client';
 import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
-
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
 

@@ -3,7 +3,6 @@ import { Production, ProductionDetail } from '@prisma/client';
 
 import { OptionalProduction } from 'src/types/productions.types';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ProductionComplete } from 'src/types/productions.types';
 import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
@@ -46,35 +45,35 @@ export class ProductionService {
     }
   }
 
-  async getAll(): Promise<ProductionComplete[]> {
+  async getAll(): Promise<Production[]> {
     try {
-      const productions = await this.prisma.production.findMany();
-      const productionCompleteList: ProductionComplete[] = [];
-      for (const production of productions) {
-        const item: ProductionComplete = await this.getOne({
-          id: production['id'],
-        });
-        productionCompleteList.push(item);
-      }
-      return productionCompleteList;
+      const productions = await this.prisma.production.findMany({
+        include: {
+          ProductionDetail: {
+            include: { product: true },
+          },
+        },
+      });
+      return productions;
     } catch (error) {
       this.logger.error(`Error in getAll: ${error.message}`);
       throw error;
     }
   }
 
-  async getOne(production: OptionalProduction): Promise<ProductionComplete> {
+  async getOne(production: OptionalProduction): Promise<Production> {
     try {
-      let dbProduction: ProductionComplete;
-      dbProduction['data'] = await this.prisma.production.findFirst({
+      const dbProduction = await this.prisma.production.findFirst({
         where: production,
+        include: {
+          ProductionDetail: {
+            include: { product: true },
+          },
+        },
       });
-      if (!dbProduction['data']) {
-        throw new NotFoundException('Production not found');
+      if (!dbProduction) {
+        throw new NotFoundException('Producción no encontrada.');
       }
-      dbProduction['details'] = await this.prisma.productionDetail.findMany({
-        where: production,
-      });
       return dbProduction;
     } catch (error) {
       this.logger.error(`Error in getOne: ${error.message}`);
