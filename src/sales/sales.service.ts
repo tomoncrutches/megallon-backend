@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Sale, SaleDetail } from '@prisma/client';
 import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
+
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
 
@@ -107,8 +108,10 @@ export class SalesService {
             },
           });
           await this.productsService.update({
-            ...productDetail,
+            id: productDetail.id,
+            name: productDetail.name,
             stock: productDetail.stock - product.quantity,
+            type_id: productDetail.type_id,
           });
 
           i++;
@@ -121,8 +124,10 @@ export class SalesService {
           });
           if (productDetail.stock > product.quantity)
             await this.productsService.update({
-              ...productDetail,
+              id: productDetail.id,
+              name: productDetail.name,
               stock: productDetail.stock + product.quantity,
+              type_id: productDetail.type_id,
             });
         }
         await this.prisma.saleDetail.deleteMany({
