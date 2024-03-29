@@ -11,16 +11,18 @@ export class ClientsService {
 
   async create(payload: ClientExtended): Promise<Client> {
     try {
-      const coords = await this.prisma.clientCoordinate.create({
+      const address = await this.prisma.clientCoordinate.create({
         data: {
-          lat: payload.coords.lat,
-          lon: payload.coords.lon,
+          lat: payload.address.lat,
+          lon: payload.address.lon,
         },
       });
       return await this.prisma.client.create({
         data: {
-          ...payload.data,
-          address_id: coords.id,
+          name: payload.name,
+          email: payload.email,
+          phone: payload.phone,
+          address_id: address.id,
         },
       });
     } catch (error) {
@@ -44,7 +46,10 @@ export class ClientsService {
 
   async getOne(client: OptionalClient): Promise<Client> {
     try {
-      const dbClient = await this.prisma.client.findFirst({ where: client });
+      const dbClient = await this.prisma.client.findFirst({
+        where: client,
+        include: { address: true },
+      });
       if (!dbClient) throw new NotFoundException('El cliente no existe.');
 
       return dbClient;
