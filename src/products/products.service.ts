@@ -106,6 +106,17 @@ export class ProductsService {
     }
   }
 
+  async updateStock({ id, stock }: { id: string; stock: number }) {
+    return await this.prisma.product.update({
+      where: { id },
+      data: {
+        stock: {
+          increment: stock,
+        },
+      },
+    });
+  }
+
   async delete(id: string): Promise<Product> {
     try {
       return await this.prisma.product.delete({ where: { id } });

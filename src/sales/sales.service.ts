@@ -175,16 +175,17 @@ export class SalesService {
 
   async delete(id: string): Promise<Sale> {
     try {
-      await this.prisma.saleDetail.deleteMany({
-        where: {
-          sale_id: id,
-        },
+      const details = await this.prisma.saleDetail.findMany({
+        where: { sale_id: id },
       });
-      return await this.prisma.sale.delete({
-        where: {
-          id,
-        },
-      });
+      for (const detail of details) {
+        await this.productsService.updateStock({
+          id: detail.product_id,
+          stock: detail.quantity,
+        });
+      }
+      await this.prisma.saleDetail.deleteMany({ where: { sale_id: id } });
+      return await this.prisma.sale.delete({ where: { id } });
     } catch (error) {
       this.logger.error(error.message);
       throw error;
