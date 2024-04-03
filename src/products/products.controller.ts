@@ -24,7 +24,7 @@ export class ProductsController {
   constructor(
     private readonly service: ProductsService,
     private readonly historyService: HistoryService,
-    private readonly clodinaryService: CloudinaryService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @Post()
@@ -39,7 +39,7 @@ export class ProductsController {
   ) {
     const payload: Product = JSON.parse(data.product as string);
     try {
-      const { secure_url } = await this.clodinaryService.uploadFile(
+      const { secure_url } = await this.cloudinaryService.uploadFile(
         file.path,
         'products',
       );
@@ -88,11 +88,29 @@ export class ProductsController {
     }
   }
 
+  @UseInterceptors(
+    FileInterceptor('image_file', {
+      dest: './.temp',
+    }),
+  )
   @Put()
-  async update(@Body() data: Product) {
+  async update(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: { product: Product | string },
+  ) {
+    const payload: Product = JSON.parse(data.product as string);
     try {
-      if (!('id' in data)) throw new ForbiddenException('El ID es requerido.');
-      const updated = await this.service.update(data);
+      if (!('id' in payload))
+        throw new ForbiddenException('El ID es requerido.');
+
+      const imageURL: string = file
+        ? (await this.cloudinaryService.uploadFile(file.path, 'material'))
+            .secure_url
+        : payload.image;
+      const updated = await this.service.update({
+        ...payload,
+        image: imageURL,
+      });
       this.historyService.create({
         action: 'Actualización de Producto',
         description: `Se actualizó el producto ${updated.name}. `,
