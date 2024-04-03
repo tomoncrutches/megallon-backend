@@ -8,24 +8,45 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import { Product } from '@prisma/client';
 import { ProductsService } from './products.service';
 import { HistoryService } from 'src/history/history.service';
 import { isEmpty } from 'src/lib/utils';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('products')
 export class ProductsController {
   constructor(
     private readonly service: ProductsService,
     private readonly historyService: HistoryService,
+    private readonly clodinaryService: CloudinaryService,
   ) {}
 
   @Post()
-  async create(@Body() data: Product) {
+  @UseInterceptors(
+    FileInterceptor('image_file', {
+      dest: './.temp',
+    }),
+  )
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: { product: Product | string },
+  ) {
+    const payload: Product = JSON.parse(data.product as string);
     try {
-      const newProduct = await this.service.create(data);
+      const { secure_url } = await this.clodinaryService.uploadFile(
+        file.path,
+        'products',
+      );
+      const newProduct = await this.service.create({
+        ...payload,
+        image: secure_url,
+      });
       await this.historyService.create({
         action: 'Nuevo Producto',
         description: `Se registró un nuevo producto llamado ${newProduct.name}.`,
@@ -41,6 +62,15 @@ export class ProductsController {
   async getAll() {
     try {
       return await this.service.getAll();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get('types')
+  async getAllTypes() {
+    try {
+      return await this.service.getAllTypes();
     } catch (error) {
       throw error;
     }

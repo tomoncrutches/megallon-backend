@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger('Product Service');
+
   async create(data: Product) {
     // The create method is used to create a new record in the database
     try {
@@ -88,6 +89,15 @@ export class ProductsService {
       return type;
     } catch (error) {
       this.logger.error(`Error in getType: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getAllTypes() {
+    try {
+      return await this.prisma.productType.findMany();
+    } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }

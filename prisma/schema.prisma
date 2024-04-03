@@ -27,6 +27,7 @@ model Product {
   stock            Int
   type             ProductType        @relation(fields: [type_id], references: [id])
   type_id          String // Cambiado a type_id para seguir la convención
+  image            String
   materialRecipe   MaterialRecipe[]
   ProductionDetail ProductionDetail[]
   SaleDetail       SaleDetail[]

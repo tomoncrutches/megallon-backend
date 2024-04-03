@@ -112,6 +112,7 @@ export class SalesService {
             name: productDetail.name,
             stock: productDetail.stock - product.quantity,
             type_id: productDetail.type_id,
+            image: productDetail.image,
           });
 
           i++;
@@ -128,6 +129,7 @@ export class SalesService {
               name: productDetail.name,
               stock: productDetail.stock + product.quantity,
               type_id: productDetail.type_id,
+              image: productDetail.image,
             });
         }
         await this.prisma.saleDetail.deleteMany({
