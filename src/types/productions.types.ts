@@ -5,6 +5,10 @@ export type ProductionComplete = {
   details: ProductionDetail[];
 };
 
+export interface ProductionForCreate extends Production {
+  products: { id: string; quantity: number }[];
+}
+
 export type OptionalProduction = {
   [key in keyof Production]?: Production[key];
 };

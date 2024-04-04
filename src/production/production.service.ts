@@ -1,7 +1,10 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  OptionalProduction,
+  ProductionForCreate,
+} from 'src/types/productions.types';
 import { Production, ProductionDetail } from '@prisma/client';
 
-import { OptionalProduction } from 'src/types/productions.types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
 
@@ -14,8 +17,7 @@ export class ProductionService {
   private readonly logger = new Logger('Production Service');
 
   async create(
-    data: Production,
-    details: ProductionDetail[] /* The create method is used to create a new record in the database.
+    data: ProductionForCreate /* The create method is used to create a new record in the database.
   The updateProductStock method is used to update the stock of a product in the database.
   Parameters:
   - data: The data of Production to be created in the database.
@@ -23,11 +25,24 @@ export class ProductionService {
   */,
   ): Promise<Production> {
     try {
-      for (const element of details) {
-        this.updateProductStock(element['product_Id'], element['quantity']);
-        this.prisma.productionDetail.create({ data: element });
+      const productionCreated = await this.prisma.production.create({
+        data: {
+          date: data.date,
+          hours: data.hours,
+          personal_quantity: data.personal_quantity,
+        },
+      });
+      for (const element of data.products) {
+        await this.updateProductStock(element.id, element.quantity);
+        await this.prisma.productionDetail.create({
+          data: {
+            production_id: productionCreated.id,
+            product_id: element.id,
+            quantity: element.quantity,
+          },
+        });
       }
-      return await this.prisma.production.create({ data });
+      return productionCreated;
     } catch (error) {
       this.logger.error(`Error in create: ${error.message}`);
       throw error;
@@ -36,9 +51,10 @@ export class ProductionService {
 
   private async updateProductStock(productId: string, quantity: number) {
     try {
-      const product = await this.productsService.getOne({ id: productId });
-      product['stock'] += quantity;
-      await this.productsService.update(product);
+      await this.prisma.product.update({
+        where: { id: productId },
+        data: { stock: { increment: quantity } },
+      });
     } catch (error) {
       this.logger.error(`Error in updateProductStock: ${error.message}`);
       throw error;

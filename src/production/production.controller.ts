@@ -13,6 +13,7 @@ import { Production, ProductionDetail } from '@prisma/client';
 import { ProductionService } from './production.service';
 import { HistoryService } from 'src/history/history.service';
 import { isEmpty } from 'src/lib/utils';
+import { ProductionForCreate } from 'src/types/productions.types';
 
 @Controller('production')
 export class ProductionController {
@@ -22,9 +23,9 @@ export class ProductionController {
   ) {}
 
   @Post()
-  async create(@Body() data: Production, list: ProductionDetail[]) {
+  async create(@Body() data: ProductionForCreate) {
     try {
-      const newProduction = await this.service.create(data, list);
+      const newProduction = await this.service.create(data);
       await this.historyService.create({
         action: 'Nueva Producción',
         description: `Se registró una nueva producción con el ID ${newProduction.id}.`,
