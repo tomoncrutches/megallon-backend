@@ -46,6 +46,17 @@ export class ProductionController {
     }
   }
 
+  @Get('latest')
+  async getLastFourWeeks(@Query() params: { id: string }) {
+    try {
+      if (!('id' in params))
+        throw new ForbiddenException('El ID es requerido.');
+      return await this.service.getLastFourWeeks(params.id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @Get('detail')
   async getOne(@Query() production: Production) {
     try {

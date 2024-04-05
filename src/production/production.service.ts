@@ -77,6 +77,41 @@ export class ProductionService {
     }
   }
 
+  async getLastFourWeeks(id: string) {
+    const currentDate = new Date();
+
+    const lastFourWeeksStartDate = new Date(currentDate);
+    lastFourWeeksStartDate.setDate(currentDate.getDate() - 7 * 4);
+
+    const lastFourWeeksEndDate = new Date(currentDate);
+
+    try {
+      return await this.prisma.production.findMany({
+        where: {
+          date: {
+            gte: lastFourWeeksStartDate,
+            lte: lastFourWeeksEndDate,
+          },
+          ProductionDetail: {
+            some: {
+              product_id: id,
+            },
+          },
+        },
+        include: {
+          ProductionDetail: {
+            where: {
+              product_id: id,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
   async getOne(production: OptionalProduction): Promise<Production> {
     try {
       const dbProduction = await this.prisma.production.findFirst({
