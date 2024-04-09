@@ -65,7 +65,7 @@ export class ProductsService {
     }
   }
 
-  async decrementForRecipe(product_id, quantity) {
+  async decrementForRecipe(product_id, quantity: number) {
     const recipe = await this.prisma.materialRecipe.findMany({
       where: { product_id },
       include: { material: true },
