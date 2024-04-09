@@ -6,7 +6,7 @@ export type ProductionComplete = {
 };
 
 export interface ProductionForCreate extends Production {
-  products: { id: string; quantity: number }[];
+  products: { id: string; quantity: number; recipes_quantity: number }[];
 }
 
 export type OptionalProduction = {

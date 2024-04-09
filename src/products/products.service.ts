@@ -1,5 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { OptionalProduct, RecipeComplete } from 'src/types/product.types';
+import {
+  OptionalProduct,
+  ProductForCreate,
+  RecipeComplete,
+} from 'src/types/product.types';
 import { Product, ProductType } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -9,10 +13,21 @@ export class ProductsService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger('Product Service');
 
-  async create(data: Product) {
+  async create(data: ProductForCreate): Promise<Product> {
     // The create method is used to create a new record in the database
     try {
-      return await this.prisma.product.create({ data });
+      const payload = { ...data, recipes: undefined };
+      const newProduct = await this.prisma.product.create({ data: payload });
+      for (const recipe of data.recipes) {
+        await this.prisma.materialRecipe.create({
+          data: {
+            product_id: newProduct.id,
+            material_id: recipe.material_id,
+            quantity: recipe.quantity,
+          },
+        });
+      }
+      return newProduct;
     } catch (error) {
       this.logger.error(`Error in create: ${error.message}`);
       throw error;
@@ -34,7 +49,12 @@ export class ProductsService {
     try {
       const dbProduct = await this.prisma.product.findFirst({
         where: product,
-        include: { type: true },
+        include: {
+          type: true,
+          materialRecipe: {
+            include: { material: true },
+          },
+        },
       });
       if (!dbProduct)
         throw new NotFoundException('El producto no fue encontrado.');
@@ -43,6 +63,20 @@ export class ProductsService {
       this.logger.error(`Error in getOne: ${error.message}`);
       throw error;
     }
+  }
+
+  async decrementForRecipe(product_id, quantity) {
+    const recipe = await this.prisma.materialRecipe.findMany({
+      where: { product_id },
+      include: { material: true },
+    });
+    for (const element of recipe) {
+      await this.prisma.material.update({
+        where: { id: element.material_id },
+        data: { stock: { decrement: element.quantity * quantity } },
+      });
+    }
+    return recipe;
   }
 
   async getCompleteRecipes(productId: string): Promise<RecipeComplete[]> {
@@ -69,10 +103,12 @@ export class ProductsService {
       const recipe = await this.prisma.materialRecipe.findFirst({
         where: { id: recipeId },
       });
-      const product = await this.getOne({ id: recipe.product_id });
+      const material = await this.prisma.material.findFirst({
+        where: { id: recipe.material_id },
+      });
       const recipeComplete: RecipeComplete = {
         data: recipe,
-        product: product,
+        material: material,
       };
       return recipeComplete;
     } catch (error) {

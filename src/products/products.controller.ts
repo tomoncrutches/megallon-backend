@@ -18,6 +18,7 @@ import { HistoryService } from 'src/history/history.service';
 import { isEmpty } from 'src/lib/utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { ProductForCreate } from 'src/types/product.types';
 
 @Controller('products')
 export class ProductsController {
@@ -35,15 +36,15 @@ export class ProductsController {
   )
   async create(
     @UploadedFile() file: Express.Multer.File,
-    @Body() data: { product: Product | string },
+    @Body() data: { product: ProductForCreate | string },
   ) {
-    const payload: Product = JSON.parse(data.product as string);
+    const payload: ProductForCreate = JSON.parse(data.product as string);
     try {
       const { secure_url } = await this.cloudinaryService.uploadFile(
         file.path,
         'products',
       );
-      const newProduct = await this.service.create({
+      const newProduct: Product = await this.service.create({
         ...payload,
         image: secure_url,
       });
