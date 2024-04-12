@@ -5,6 +5,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  Patch,
   Post,
   Put,
   Query,
@@ -71,6 +72,19 @@ export class ProductsController {
   async getAllTypes() {
     try {
       return await this.service.getAllTypes();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch('types')
+  async updateType(@Body() payload: { id: string; value: number }) {
+    const { id, value } = payload;
+    if (!id || !value)
+      throw new ForbiddenException('Los atributos son requeridos.');
+
+    try {
+      return await this.service.updateType(id, value);
     } catch (error) {
       throw error;
     }
