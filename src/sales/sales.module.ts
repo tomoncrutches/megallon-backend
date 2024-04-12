@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
 import { SalesController } from './sales.controller';
 import { SalesService } from './sales.service';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Module({
   providers: [
@@ -13,6 +14,7 @@ import { SalesService } from './sales.service';
     ProductsService,
     HistoryService,
     ClientsService,
+    TransactionService,
   ],
   controllers: [SalesController],
 })

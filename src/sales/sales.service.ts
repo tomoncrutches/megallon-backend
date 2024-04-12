@@ -9,12 +9,14 @@ import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Injectable()
 export class SalesService {
   constructor(
     private prisma: PrismaService,
     private productsService: ProductsService,
+    private transactionService: TransactionService,
   ) {}
   private readonly logger = new Logger('SalesService');
 
@@ -114,6 +116,14 @@ export class SalesService {
             type_id: productDetail.type_id,
             image: productDetail.image,
           });
+          await this.transactionService.create({
+            id: undefined,
+            name: productDetail.name,
+            date: sale.date,
+            type: 'Variable',
+            value: product.quantity * product.price,
+            parent_id: sale.id,
+          });
 
           i++;
         }
@@ -137,6 +147,7 @@ export class SalesService {
             sale_id: sale.id,
           },
         });
+        await this.transactionService.deleteByParent(sale.id);
         await this.prisma.sale.delete({
           where: {
             id: sale.id,
@@ -146,7 +157,6 @@ export class SalesService {
           'No hay suficiente stock de los productos seleccionados.',
         );
       }
-
       return sale;
     } catch (error) {
       this.logger.error(error.message);

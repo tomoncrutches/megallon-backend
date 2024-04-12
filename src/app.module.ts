@@ -16,6 +16,7 @@ import { ProductionModule } from './production/production.module';
 import { ProductsModule } from './products/products.module';
 import { SalesModule } from './sales/sales.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { StatisticsModule } from './statistics/statistics.module';
     ProductionModule,
     ClientsModule,
     CloudinaryModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, CloudinaryService],
