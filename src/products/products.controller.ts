@@ -78,13 +78,13 @@ export class ProductsController {
   }
 
   @Patch('types')
-  async updateType(@Body() payload: { id: string; value: number }) {
-    const { id, value } = payload;
-    if (!id || !value)
+  async updateType(@Body() payload: { id: string; price: number }) {
+    const { id, price } = payload;
+    if (!id || !price)
       throw new ForbiddenException('Los atributos son requeridos.');
 
     try {
-      return await this.service.updateType(id, value);
+      return await this.service.updateType(id, price);
     } catch (error) {
       throw error;
     }
