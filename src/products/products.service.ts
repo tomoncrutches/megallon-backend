@@ -3,6 +3,7 @@ import { OptionalProduct, RecipeComplete } from 'src/types/product.types';
 import { Product, ProductType } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ProductBasic } from 'src/types/sale.types';
 
 @Injectable()
 export class ProductsService {
@@ -157,6 +158,25 @@ export class ProductsService {
       });
     } catch (error) {
       this.logger.error(`Error in addProduction: ${error.message}`);
+      throw error;
+    }
+  }
+
+  // Función para verificar el stock de productos seleccionados mediante ID
+  async verifyStocks({ items }: { items: ProductBasic[] }): Promise<boolean> {
+    try {
+      let stockAvailable: boolean = true;
+      for (const i of items) {
+        const product = await this.prisma.product.findUnique({
+          where: { id: i.id },
+        });
+        if (product.stock < i.quantity) {
+          stockAvailable = false;
+          break;
+        }
+      }
+      return stockAvailable;
+    } catch (error) {
       throw error;
     }
   }

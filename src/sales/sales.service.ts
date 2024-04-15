@@ -7,6 +7,7 @@ import {
 import { Sale, SaleDetail } from '@prisma/client';
 import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 
+import { ClientsService } from 'src/clients/clients.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
 import { TransactionService } from 'src/transaction/transaction.service';
@@ -17,6 +18,7 @@ export class SalesService {
     private prisma: PrismaService,
     private productsService: ProductsService,
     private transactionService: TransactionService,
+    private clientsService: ClientsService,
   ) {}
   private readonly logger = new Logger('SalesService');
 
@@ -91,72 +93,44 @@ export class SalesService {
 
   async create(payload: SaleToCreate): Promise<Sale> {
     try {
-      const sale = await this.prisma.sale.create({ data: payload.data });
-
-      let noStockAvailable: boolean;
-      let i = 0;
-      while (!noStockAvailable && i < payload.items.length) {
-        const product = payload.items[i];
-        const productDetail = await this.productsService.getOne({
-          id: product.id,
-        });
-        if (productDetail.stock < product.quantity) noStockAvailable = true;
-        else {
-          await this.prisma.saleDetail.create({
-            data: {
-              quantity: product.quantity,
-              product_id: product.id,
-              sale_id: sale.id,
-            },
-          });
-          await this.productsService.update({
-            id: productDetail.id,
-            name: productDetail.name,
-            stock: productDetail.stock - product.quantity,
-            type_id: productDetail.type_id,
-            image: productDetail.image,
-          });
-          await this.transactionService.create({
-            id: undefined,
-            name: productDetail.name,
-            date: sale.date,
-            type: 'Variable',
-            value: product.quantity * product.price,
-            parent_id: sale.id,
-          });
-
-          i++;
-        }
-      }
-      if (noStockAvailable) {
-        for (const product of payload.items) {
-          const productDetail = await this.productsService.getOne({
-            id: product.id,
-          });
-          if (productDetail.stock > product.quantity)
-            await this.productsService.update({
-              id: productDetail.id,
-              name: productDetail.name,
-              stock: productDetail.stock + product.quantity,
-              type_id: productDetail.type_id,
-              image: productDetail.image,
-            });
-        }
-        await this.prisma.saleDetail.deleteMany({
-          where: {
-            sale_id: sale.id,
-          },
-        });
-        await this.transactionService.deleteByParent(sale.id);
-        await this.prisma.sale.delete({
-          where: {
-            id: sale.id,
-          },
-        });
+      const stockAvailable = await this.productsService.verifyStocks({
+        items: payload.items,
+      });
+      if (!stockAvailable)
         throw new BadRequestException(
           'No hay suficiente stock de los productos seleccionados.',
         );
+
+      const sale = await this.prisma.sale.create({ data: payload.data });
+      for (const i of payload.items) {
+        const product = await this.productsService.getOne({ id: i.id });
+        await this.prisma.saleDetail.create({
+          data: {
+            quantity: i.quantity,
+            product_id: i.id,
+            sale_id: sale.id,
+          },
+        });
+        await this.productsService.update({
+          id: product.id,
+          name: product.name,
+          stock: product.stock - i.quantity,
+          type_id: product.type_id,
+          image: product.image,
+        });
       }
+
+      const client = await this.clientsService.getOne({ id: sale.client_id });
+      await this.transactionService.create({
+        date: sale.date,
+        name: client.name,
+        value: sale.total,
+        parent_id: sale.id,
+        type: 'Variable',
+
+        id: undefined,
+      });
+
       return sale;
     } catch (error) {
       this.logger.error(error.message);
