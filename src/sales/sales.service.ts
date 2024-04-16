@@ -91,7 +91,9 @@ export class SalesService {
 
   async create(payload: SaleToCreate): Promise<Sale> {
     try {
-      const sale = await this.prisma.sale.create({ data: payload.data });
+      const sale = await this.prisma.sale.create({
+        data: { ...payload.data, paid: false, delivered: false },
+      });
 
       let noStockAvailable: boolean;
       let i = 0;
@@ -158,6 +160,38 @@ export class SalesService {
         );
       }
       return sale;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async changeStatusPaid(id: string): Promise<Sale> {
+    try {
+      const sale = await this.prisma.sale.findFirst({
+        where: { id },
+      });
+      if (!sale) throw new NotFoundException('La venta no fue encontrada.');
+      return await this.prisma.sale.update({
+        where: { id },
+        data: { paid: !sale.paid },
+      });
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async changeStatusDelivered(id: string): Promise<Sale> {
+    try {
+      const sale = await this.prisma.sale.findFirst({
+        where: { id },
+      });
+      if (!sale) throw new NotFoundException('La venta no fue encontrada.');
+      return await this.prisma.sale.update({
+        where: { id },
+        data: { delivered: !sale.delivered },
+      });
     } catch (error) {
       this.logger.error(error.message);
       throw error;
