@@ -41,6 +41,10 @@ export class ProductionService {
             quantity: element.quantity,
           },
         });
+        await this.productsService.decrementForRecipe(
+          element.id,
+          element.recipe_quantity,
+        );
       }
       return productionCreated;
     } catch (error) {
