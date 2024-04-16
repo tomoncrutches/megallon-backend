@@ -45,6 +45,7 @@ model Client {
   name       String
   email      String
   phone      String
+  attention  String
   address    ClientCoordinate @relation(fields: [address_id], references: [id])
   address_id String
   sale       Sale[]
@@ -79,6 +80,8 @@ model Sale {
   id         String       @id @default(uuid())
   date       DateTime
   total      Float
+  paid       Boolean
+  delivered  Boolean
   client     Client       @relation(fields: [client_id], references: [id])
   client_id  String
   saleDetail SaleDetail[]
