@@ -43,7 +43,7 @@ export class ProductionService {
         });
         await this.productsService.decrementForRecipe(
           element.id,
-          1, //default value, despues arreglar el front para recibir una cantidad de recetas POR PRODUCTO
+          element.recipe_quantity,
         );
       }
       return productionCreated;
