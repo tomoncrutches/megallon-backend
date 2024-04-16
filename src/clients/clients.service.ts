@@ -22,6 +22,7 @@ export class ClientsService {
           name: payload.name,
           email: payload.email,
           phone: payload.phone,
+          attention: payload.attention,
           address_id: address.id,
         },
       });

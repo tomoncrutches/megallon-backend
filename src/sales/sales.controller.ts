@@ -84,6 +84,38 @@ export class SalesController {
     }
   }
 
+  @Put('paid')
+  async changeStatusPaid(@Body() data: { id: string }) {
+    try {
+      const sale = await this.service.changeStatusPaid(data.id);
+      await this.historyService.create({
+        action: 'Cambio de Estado de Pago',
+        description: `Se cambió el estado de pago de la venta con ID ${sale.id}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return sale;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  @Put('delivered')
+  async changeStatusDelivered(@Body() data: { id: string }) {
+    try {
+      const sale = await this.service.changeStatusDelivered(data.id);
+      await this.historyService.create({
+        action: 'Cambio de Estado de Entrega',
+        description: `Se cambió el estado de entrega de la venta con ID ${sale.id}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return sale;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
   @Put('detail')
   async updateDetail(@Body() data: SaleDetail) {
     try {

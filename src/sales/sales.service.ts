@@ -101,7 +101,9 @@ export class SalesService {
           'No hay suficiente stock de los productos seleccionados.',
         );
 
-      const sale = await this.prisma.sale.create({ data: payload.data });
+      const sale = await this.prisma.sale.create({
+        data: { ...payload.data },
+      });
       for (const i of payload.items) {
         const product = await this.productsService.getOne({ id: i.id });
         await this.prisma.saleDetail.create({
@@ -132,6 +134,38 @@ export class SalesService {
       });
 
       return sale;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async changeStatusPaid(id: string): Promise<Sale> {
+    try {
+      const sale = await this.prisma.sale.findFirst({
+        where: { id },
+      });
+      if (!sale) throw new NotFoundException('La venta no fue encontrada.');
+      return await this.prisma.sale.update({
+        where: { id },
+        data: { paid: !sale.paid },
+      });
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async changeStatusDelivered(id: string): Promise<Sale> {
+    try {
+      const sale = await this.prisma.sale.findFirst({
+        where: { id },
+      });
+      if (!sale) throw new NotFoundException('La venta no fue encontrada.');
+      return await this.prisma.sale.update({
+        where: { id },
+        data: { delivered: !sale.delivered },
+      });
     } catch (error) {
       this.logger.error(error.message);
       throw error;
