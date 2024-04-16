@@ -45,7 +45,7 @@ model Client {
   name       String
   email      String
   phone      String
-  attention  String
+  attention  String           @default("Sin horarios")
   address    ClientCoordinate @relation(fields: [address_id], references: [id])
   address_id String
   sale       Sale[]
@@ -80,8 +80,8 @@ model Sale {
   id         String       @id @default(uuid())
   date       DateTime
   total      Float
-  paid       Boolean
-  delivered  Boolean
+  paid       Boolean      @default(false)
+  delivered  Boolean      @default(false)
   client     Client       @relation(fields: [client_id], references: [id])
   client_id  String
   saleDetail SaleDetail[]
@@ -123,12 +123,12 @@ model Log {
 }
 
 model Transaction {
-  id          String   @id @default(uuid())
-  name String
-  value       Float
-  type        String
-  date        DateTime
-  parent_id   String // Esto hace referencia a si
-                     // la transaccion es generado por una compra (compra de material)
-                     // o una venta (venta de producto)
+  id        String   @id @default(uuid())
+  name      String
+  value     Float
+  type      String
+  date      DateTime
+  parent_id String // Esto hace referencia a si
+  // la transaccion es generado por una compra (compra de material)
+  // o una venta (venta de producto)
 }

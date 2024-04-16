@@ -102,7 +102,7 @@ export class SalesService {
         );
 
       const sale = await this.prisma.sale.create({
-        data: { ...payload.data, paid: false, delivered: false },
+        data: { ...payload.data },
       });
       for (const i of payload.items) {
         const product = await this.productsService.getOne({ id: i.id });
