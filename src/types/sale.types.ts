@@ -2,11 +2,11 @@ import { Client, Sale } from '@prisma/client';
 
 import { ProductComplete } from './product.types';
 
-type ProductBasic = {
+export interface ProductBasic {
   id: string;
   price: number;
   quantity: number;
-};
+}
 
 export interface SaleToCreate {
   data: Sale;
