@@ -128,7 +128,7 @@ model Transaction {
   value     Float
   type      String
   date      DateTime
-  parent_id String // Esto hace referencia a si
+  parent_id String? // Esto hace referencia a si
   // la transaccion es generado por una compra (compra de material)
   // o una venta (venta de producto)
 }

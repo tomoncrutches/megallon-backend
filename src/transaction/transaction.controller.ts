@@ -1,6 +1,14 @@
-import { Controller, ForbiddenException, Get, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Post,
+  Query,
+} from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
+import { Transaction } from '@prisma/client';
 
 @Controller('transaction')
 export class TransactionController {
@@ -10,6 +18,15 @@ export class TransactionController {
   async getAll() {
     try {
       return await this.service.getAll();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post()
+  async create(@Body() data: Transaction) {
+    try {
+      return await this.service.create(data);
     } catch (error) {
       throw error;
     }
