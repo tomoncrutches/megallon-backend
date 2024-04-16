@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Query } from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
 
@@ -28,6 +28,24 @@ export class TransactionController {
   async getAllSpent(@Query() params: { type?: string }) {
     try {
       return await this.service.getAllExpenses(params.type);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get('balance')
+  async getBalance(@Query() params: { startTimestamp: string }) {
+    try {
+      const { startTimestamp } = params;
+      if (!startTimestamp)
+        throw new ForbiddenException('La fecha inicial es requerida.');
+
+      const startTimestampParsed = Number(startTimestamp);
+      const balance = await this.service.getBalance({
+        startTimeStamp: startTimestampParsed,
+      });
+
+      return { balance };
     } catch (error) {
       throw error;
     }

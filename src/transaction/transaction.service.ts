@@ -31,6 +31,7 @@ export class TransactionService {
       throw error;
     }
   }
+
   async getAllExpenses(type: string): Promise<Transaction[]> {
     try {
       return await this.prisma.transaction.findMany({
@@ -61,6 +62,21 @@ export class TransactionService {
         where: { parent_id: id },
       });
     } catch (error) {
+      throw error;
+    }
+  }
+
+  // Función para obtener balance desde una fecha hasta la actual
+  // (en un futuro se implementará fecha de finalización para mejor escalabilidad)
+  async getBalance({ startTimeStamp }: { startTimeStamp: number }) {
+    try {
+      const startDate = new Date(startTimeStamp);
+      const transactions = await this.prisma.transaction.findMany({
+        where: { date: { gte: startDate } },
+      });
+      return transactions.reduce((total, t) => total + t.value, 0);
+    } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }
