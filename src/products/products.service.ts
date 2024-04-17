@@ -17,9 +17,9 @@ export class ProductsService {
   async create(data: ProductForCreate): Promise<Product> {
     // The create method is used to create a new record in the database
     try {
-      const payload = { ...data, recipes: undefined };
+      const payload = { ...data, materialRecipe: undefined };
       const newProduct = await this.prisma.product.create({ data: payload });
-      for (const recipe of data.recipes) {
+      for (const recipe of data.materialRecipe) {
         await this.prisma.materialRecipe.create({
           data: {
             product_id: newProduct.id,
@@ -38,7 +38,9 @@ export class ProductsService {
   async getAll(): Promise<Product[]> {
     // The findMany method is used to retrieve all records from the database
     try {
-      return await this.prisma.product.findMany({ include: { type: true } });
+      return await this.prisma.product.findMany({
+        include: { type: true, materialRecipe: true },
+      });
     } catch (error) {
       this.logger.error(`Error in getAll: ${error.message}`);
       throw error;

@@ -9,7 +9,7 @@ export type OptionalMaterialRecipe = {
 };
 
 export interface ProductForCreate extends Product {
-  recipes: OptionalMaterialRecipe[];
+  materialRecipe: OptionalMaterialRecipe[];
 }
 
 export type RecipeComplete = {
