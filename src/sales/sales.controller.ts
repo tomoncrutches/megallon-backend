@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Logger,
+  Patch,
   Post,
   Put,
   Query,
@@ -84,7 +85,7 @@ export class SalesController {
     }
   }
 
-  @Put('paid')
+  @Patch('paid')
   async changeStatusPaid(@Body() data: { id: string }) {
     try {
       const sale = await this.service.changeStatusPaid(data.id);
@@ -100,7 +101,7 @@ export class SalesController {
     }
   }
 
-  @Put('delivered')
+  @Patch('delivered')
   async changeStatusDelivered(@Body() data: { id: string }) {
     try {
       const sale = await this.service.changeStatusDelivered(data.id);
