@@ -33,18 +33,23 @@ export class TransactionController {
   }
 
   @Get('income')
-  async getAllIncome() {
+  async getAllIncome(@Query() params: { initialDate?: string }) {
     try {
-      return await this.service.getAllIncome();
+      return await this.service.getAllIncome({
+        initialDate: params.initialDate,
+      });
     } catch (error) {
       throw error;
     }
   }
 
   @Get('expenses')
-  async getAllSpent(@Query() params: { type?: string }) {
+  async getAllSpent(@Query() params: { initialDate?: string; type?: string }) {
     try {
-      return await this.service.getAllExpenses(params.type);
+      return await this.service.getAllExpenses({
+        initialDate: params.initialDate,
+        type: params.type,
+      });
     } catch (error) {
       throw error;
     }

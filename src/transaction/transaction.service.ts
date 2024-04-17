@@ -17,12 +17,19 @@ export class TransactionService {
     }
   }
 
-  async getAllIncome(): Promise<Transaction[]> {
+  async getAllIncome({
+    initialDate,
+  }: {
+    initialDate?: string;
+  }): Promise<Transaction[]> {
     try {
       return await this.prisma.transaction.findMany({
         where: {
           value: {
             gt: 0,
+          },
+          date: {
+            gte: initialDate.length > 0 ? initialDate : undefined,
           },
         },
       });
@@ -32,14 +39,23 @@ export class TransactionService {
     }
   }
 
-  async getAllExpenses(type: string): Promise<Transaction[]> {
+  async getAllExpenses({
+    initialDate,
+    type,
+  }: {
+    initialDate?: string;
+    type?: string;
+  }): Promise<Transaction[]> {
     try {
       return await this.prisma.transaction.findMany({
         where: {
           value: {
             lt: 0,
           },
-          type: type ?? undefined,
+          date: {
+            gte: initialDate.length > 0 ? initialDate : undefined,
+          },
+          type: type.length > 0 ? type : undefined,
         },
       });
     } catch (error) {
