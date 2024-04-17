@@ -1,12 +1,16 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { MaterialForBuy, OptionalMaterial } from 'src/types/material.types';
 
 import { Material } from '@prisma/client';
-import { OptionalMaterial } from 'src/types/material.types';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Injectable()
 export class MaterialService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private transactionService: TransactionService,
+  ) {}
   private readonly logger = new Logger('MaterialService');
 
   async create(data: Material): Promise<Material> {
@@ -36,6 +40,38 @@ export class MaterialService {
         throw new NotFoundException('El material no fue encontrado.');
 
       return dbMaterial;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async buyMaterial(data: MaterialForBuy): Promise<Material> {
+    try {
+      const material = await this.prisma.material.findFirst({
+        where: { id: data.id },
+      });
+      if (!material)
+        throw new NotFoundException('El material no fue encontrado.');
+      await this.transactionService.create({
+        name: material.name,
+        value: data.price,
+        parent_id: data.id,
+        type: 'Variable',
+        date: new Date(),
+        id: undefined,
+      });
+      return await this.prisma.material.update({
+        where: {
+          id: data.id,
+        },
+        data: {
+          actual_price: data.price,
+          stock: {
+            increment: data.quantity,
+          },
+        },
+      });
     } catch (error) {
       this.logger.error(error.message);
       throw error;

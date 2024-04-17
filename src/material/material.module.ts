@@ -4,6 +4,7 @@ import { MaterialController } from './material.controller';
 import { MaterialService } from './material.service';
 import { Module } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Module({
   providers: [
@@ -11,6 +12,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
     PrismaService,
     HistoryService,
     CloudinaryService,
+    TransactionService,
   ],
   controllers: [MaterialController],
 })

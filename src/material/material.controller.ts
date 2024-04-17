@@ -10,6 +10,7 @@ import {
   Query,
   UseInterceptors,
   UploadedFile,
+  Patch,
 } from '@nestjs/common';
 
 import { Material } from '@prisma/client';
@@ -18,6 +19,7 @@ import { HistoryService } from 'src/history/history.service';
 import { isEmpty } from 'src/lib/utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { MaterialForBuy } from 'src/types/material.types';
 
 @Controller('material')
 export class MaterialController {
@@ -108,6 +110,26 @@ export class MaterialController {
       await this.historyService.create({
         action: 'Actualización de Material',
         description: `Se actualizó el material ${material.name}.`,
+        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+      });
+      return material;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  @Patch('buy')
+  async buyMaterial(@Body() data: MaterialForBuy) {
+    const { id, price, quantity } = data;
+    try {
+      if (!id || !price || !quantity)
+        throw new ForbiddenException('Los atributos son requeridos.');
+
+      const material = await this.service.buyMaterial(data);
+      await this.historyService.create({
+        action: 'Compra de Material',
+        description: `Se compró ${quantity} gramos del material ${material.name} a un precio de $${price} por kg.`,
         user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
       });
       return material;
