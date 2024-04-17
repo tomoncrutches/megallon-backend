@@ -55,7 +55,7 @@ export class MaterialService {
         throw new NotFoundException('El material no fue encontrado.');
       await this.transactionService.create({
         name: material.name,
-        value: data.price,
+        value: -(data.price * (data.quantity / 1000)),
         parent_id: data.id,
         type: 'Variable',
         date: new Date(),
