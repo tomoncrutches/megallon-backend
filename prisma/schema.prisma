@@ -78,6 +78,7 @@ model MaterialRecipe {
 
 model Sale {
   id         String       @id @default(uuid())
+  number     Int          @default(autoincrement())
   date       DateTime
   total      Float
   paid       Boolean      @default(false)
