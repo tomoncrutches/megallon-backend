@@ -10,7 +10,11 @@ export class TransactionService {
 
   async getAll(): Promise<Transaction[]> {
     try {
-      return await this.prisma.transaction.findMany();
+      return await this.prisma.transaction.findMany({
+        orderBy: {
+          date: 'desc',
+        },
+      });
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -31,6 +35,9 @@ export class TransactionService {
           date: {
             gte: initialDate.length > 0 ? initialDate : undefined,
           },
+        },
+        orderBy: {
+          date: 'desc',
         },
       });
     } catch (error) {
@@ -56,6 +63,9 @@ export class TransactionService {
             gte: initialDate.length > 0 ? initialDate : undefined,
           },
           type: type.length > 0 ? type : undefined,
+        },
+        orderBy: {
+          date: 'desc',
         },
       });
     } catch (error) {
