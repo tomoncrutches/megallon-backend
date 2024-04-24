@@ -9,11 +9,13 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 import { Sale, SaleDetail } from '@prisma/client';
 import { HistoryService } from 'src/history/history.service';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('sales')
 export class SalesController {
@@ -23,6 +25,7 @@ export class SalesController {
   ) {}
   private readonly logger = new Logger('SalesController');
 
+  @UseGuards(AuthGuard)
   @Post()
   async create(@Body() data: SaleToCreate) {
     try {
@@ -39,6 +42,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async getAll() {
     try {
@@ -49,6 +53,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('lastweek')
   async getLastWeek() {
     try {
@@ -59,6 +64,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('detail')
   async getOne(@Query() sale: SaleExtended) {
     try {
@@ -69,6 +75,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Put()
   async update(@Body() data: Sale) {
     try {
@@ -85,6 +92,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch('paid')
   async changeStatusPaid(@Body() data: { id: string }) {
     try {
@@ -101,6 +109,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch('delivered')
   async changeStatusDelivered(@Body() data: { id: string }) {
     try {
@@ -117,6 +126,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Put('detail')
   async updateDetail(@Body() data: SaleDetail) {
     try {
@@ -133,6 +143,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Delete()
   async delete(@Body() data: { id: string }) {
     const { id } = data;
@@ -152,6 +163,7 @@ export class SalesController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Delete('detail')
   async deleteDetail(@Body() data: { id: string }) {
     const { id } = data;

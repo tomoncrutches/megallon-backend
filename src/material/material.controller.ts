@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 
 import { Material } from '@prisma/client';
@@ -20,6 +21,7 @@ import { isEmpty } from 'src/lib/utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { MaterialForBuy } from 'src/types/material.types';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('material')
 export class MaterialController {
@@ -30,6 +32,7 @@ export class MaterialController {
   ) {}
   private readonly logger = new Logger('MaterialController');
 
+  @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(
     FileInterceptor('image_file', {
@@ -63,6 +66,7 @@ export class MaterialController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async getAll() {
     try {
@@ -73,6 +77,7 @@ export class MaterialController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('detail')
   async getOne(@Query() material: Material) {
     try {
@@ -84,6 +89,8 @@ export class MaterialController {
       throw error;
     }
   }
+
+  @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('image_file', {
       dest: './.temp',
@@ -119,6 +126,7 @@ export class MaterialController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch('buy')
   async buyMaterial(@Body() data: MaterialForBuy) {
     const { id, price, quantity } = data;
@@ -139,6 +147,7 @@ export class MaterialController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Delete()
   async delete(@Body() data: { id: string }) {
     const { id } = data;

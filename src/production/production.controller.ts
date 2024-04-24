@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { Production, ProductionDetail } from '@prisma/client';
@@ -14,6 +15,7 @@ import { ProductionService } from './production.service';
 import { HistoryService } from 'src/history/history.service';
 import { isEmpty } from 'src/lib/utils';
 import { ProductionForCreate } from 'src/types/productions.types';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('production')
 export class ProductionController {
@@ -22,6 +24,7 @@ export class ProductionController {
     private readonly historyService: HistoryService,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   async create(@Body() data: ProductionForCreate) {
     try {
@@ -37,6 +40,7 @@ export class ProductionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async getAll() {
     try {
@@ -46,6 +50,7 @@ export class ProductionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('latest')
   async getLastFourWeeks(@Query() params: { id: string }) {
     try {
@@ -57,6 +62,7 @@ export class ProductionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('detail')
   async getOne(@Query() production: Production) {
     try {
@@ -69,6 +75,7 @@ export class ProductionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Put()
   async updateProduction(@Body() data: Production) {
     try {
@@ -85,6 +92,7 @@ export class ProductionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Put()
   async updateProductionDetail(@Body() data: ProductionDetail) {
     try {
@@ -95,6 +103,7 @@ export class ProductionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Delete()
   async deleteProduction(@Body() data: { id: string }) {
     const { id } = data;
@@ -111,6 +120,7 @@ export class ProductionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Delete()
   async deleteProductionDetail(@Body() data: { id: string }) {
     const { id } = data;

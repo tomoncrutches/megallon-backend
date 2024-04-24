@@ -33,7 +33,10 @@ export class AuthController {
           'El token de autorización es requerido.',
         );
 
-      const token = authorizaton.substring(7);
+      const [type, token] = authorizaton.split(' ');
+      if (type !== 'Bearer')
+        throw new UnauthorizedException('El token es inválido.');
+
       return await this.service.verifySession(token);
     } catch (error) {
       throw error;

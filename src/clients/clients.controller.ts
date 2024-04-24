@@ -8,10 +8,12 @@ import {
   Logger,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { HistoryService } from 'src/history/history.service';
 import { Client } from '@prisma/client';
 import { isEmpty } from 'src/lib/utils';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('clients')
 export class ClientsController {
@@ -21,6 +23,7 @@ export class ClientsController {
   ) {}
   private readonly logger = new Logger('SalesController');
 
+  @UseGuards(AuthGuard)
   @Post()
   async create(@Body() data: ClientExtended) {
     try {
@@ -37,6 +40,7 @@ export class ClientsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async getAll() {
     try {
@@ -47,6 +51,7 @@ export class ClientsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('detail')
   async getOne(@Query() client: Client) {
     try {

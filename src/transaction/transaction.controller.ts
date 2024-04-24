@@ -5,15 +5,18 @@ import {
   Get,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { TransactionService } from './transaction.service';
 import { Transaction } from '@prisma/client';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('transaction')
 export class TransactionController {
   constructor(private readonly service: TransactionService) {}
 
+  @UseGuards(AuthGuard)
   @Get()
   async getAll() {
     try {
@@ -23,6 +26,7 @@ export class TransactionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post()
   async create(@Body() data: Transaction) {
     try {
@@ -32,6 +36,7 @@ export class TransactionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('income')
   async getAllIncome(@Query() params: { initialDate?: string }) {
     try {
@@ -43,6 +48,7 @@ export class TransactionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('expenses')
   async getAllSpent(@Query() params: { initialDate?: string; type?: string }) {
     try {
@@ -55,6 +61,7 @@ export class TransactionController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('balance')
   async getBalance(@Query() params: { startTimestamp: string }) {
     try {

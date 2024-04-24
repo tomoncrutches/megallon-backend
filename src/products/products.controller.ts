@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 
@@ -20,6 +21,7 @@ import { isEmpty } from 'src/lib/utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { ProductForCreate } from 'src/types/product.types';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -29,6 +31,7 @@ export class ProductsController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(
     FileInterceptor('image_file', {
@@ -60,6 +63,7 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async getAll() {
     try {
@@ -69,6 +73,7 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('types')
   async getAllTypes() {
     try {
@@ -78,6 +83,8 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Patch('types')
   async updateType(@Body() payload: { id: string; price: number }) {
     const { id, price } = payload;
@@ -91,6 +98,7 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('detail')
   async getOne(@Query() product: Product) {
     try {
@@ -103,6 +111,7 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('image_file', {
       dest: './.temp',
@@ -137,6 +146,7 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Delete()
   async delete(@Body() data: { id: string }) {
     const { id } = data;
