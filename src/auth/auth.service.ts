@@ -36,4 +36,15 @@ export class AuthService {
       throw error;
     }
   }
+
+  async verifySession(token: string): Promise<{ isValid: boolean }> {
+    try {
+      const verified = await this.jwtService.verifyAsync(token);
+      if (!verified) return { isValid: false };
+
+      return { isValid: true };
+    } catch (error) {
+      throw error;
+    }
+  }
 }
