@@ -10,3 +10,7 @@ type Props = {
 export const verifyPassword = async ({ password, storedPassword }: Props) => {
   return await compare(password, storedPassword);
 };
+
+export const getToken = (token: string) => {
+  return token.substring(7);
+};

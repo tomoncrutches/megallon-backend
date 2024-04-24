@@ -5,6 +5,7 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  Headers,
   Logger,
   Post,
   Query,
@@ -12,27 +13,35 @@ import {
 } from '@nestjs/common';
 import { HistoryService } from 'src/history/history.service';
 import { Client } from '@prisma/client';
-import { isEmpty } from 'src/lib/utils';
+import { getToken, isEmpty } from 'src/lib/utils';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('clients')
 export class ClientsController {
   constructor(
     private readonly service: ClientsService,
     private readonly historyService: HistoryService,
+    private readonly jwtService: JwtService,
   ) {}
   private readonly logger = new Logger('SalesController');
 
   @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() data: ClientExtended) {
+  async create(
+    @Body() data: ClientExtended,
+    @Headers('authorization') authorization: string,
+  ) {
     try {
       const client = await this.service.create(data);
+      const { sub } = await this.jwtService.decode(getToken(authorization));
+
       await this.historyService.create({
         action: 'Nuevo Cliente',
         description: `Se registró un nuevo cliente con el nombre ${client.name}.`,
-        user_id: '1d6f37dc-06c7-4510-92e8-a7495e287708',
+        user_id: sub,
       });
+
       return client;
     } catch (error) {
       this.logger.error(error.message);
