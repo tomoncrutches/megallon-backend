@@ -20,6 +20,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
+          
+      - name: update os dependencies
+        run: |
+          apt-get install -y build-essential libpq-dev
 
       - name: npm install, npx prisma generate, and npm run build
         run: |
