@@ -23,7 +23,7 @@ jobs:
           
       - name: update os dependencies
         run: |
-          sudo apt install -y build-essential libpq-dev
+          sudo apt update -y && sudo apt upgrade -y && sudo apt install -y openssl
 
       - name: npm install, npx prisma generate, and npm run build
         run: |
