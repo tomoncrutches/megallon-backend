@@ -23,7 +23,7 @@ jobs:
           
       - name: update os dependencies
         run: |
-          apt-get install -y build-essential libpq-dev
+          sudo apt install -y build-essential libpq-dev
 
       - name: npm install, npx prisma generate, and npm run build
         run: |
