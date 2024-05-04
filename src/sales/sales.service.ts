@@ -122,17 +122,6 @@ export class SalesService {
         });
       }
 
-      const client = await this.clientsService.getOne({ id: sale.client_id });
-      await this.transactionService.create({
-        date: sale.date,
-        name: client.name,
-        value: sale.total,
-        parent_id: sale.id,
-        type: 'Variable',
-
-        id: undefined,
-      });
-
       return sale;
     } catch (error) {
       this.logger.error(error.message);
@@ -146,6 +135,24 @@ export class SalesService {
         where: { id },
       });
       if (!sale) throw new NotFoundException('La venta no fue encontrada.');
+      if (sale.paid) {
+        await this.transactionService.deleteByParent(sale.id);
+        return await this.prisma.sale.update({
+          where: { id },
+          data: { paid: !sale.paid },
+        });
+      } else {
+        const client = await this.clientsService.getOne({ id: sale.client_id });
+        await this.transactionService.create({
+          date: sale.date,
+          name: client.name,
+          value: sale.total,
+          parent_id: sale.id,
+          type: 'Variable',
+
+          id: undefined,
+        });
+      }
       return await this.prisma.sale.update({
         where: { id },
         data: { paid: !sale.paid },
