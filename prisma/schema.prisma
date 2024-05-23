@@ -62,7 +62,7 @@ model ClientCoordinate {
 model Material {
   id             String           @id @default(uuid())
   name           String
-  stock          Int
+  stock          Float
   image          String
   actual_price   Float
   materialRecipe MaterialRecipe[]
