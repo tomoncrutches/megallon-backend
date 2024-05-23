@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Material" ALTER COLUMN "stock" SET DATA TYPE DOUBLE PRECISION;
