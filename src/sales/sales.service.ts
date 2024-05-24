@@ -119,6 +119,8 @@ export class SalesService {
           stock: product.stock - i.quantity,
           type_id: product.type_id,
           image: product.image,
+
+          materialRecipe: undefined,
         });
       }
 

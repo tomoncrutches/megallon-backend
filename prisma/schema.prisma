@@ -75,6 +75,8 @@ model MaterialRecipe {
   material_id String
   product     Product  @relation(fields: [product_id], references: [id])
   product_id  String
+
+  @@unique([product_id,material_id])
 }
 
 model Sale {

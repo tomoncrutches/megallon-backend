@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
+  OptionalMaterialRecipe,
   OptionalProduct,
   ProductForCreate,
   RecipeComplete,
@@ -155,14 +156,56 @@ export class ProductsService {
     }
   }
 
-  async update(data: Product): Promise<Product> {
+  async update(data: ProductForCreate): Promise<Product> {
     try {
-      return await this.prisma.product.update({
+      await this.prisma.product.update({
         where: {
           id: data.id,
         },
-        data,
+        data: {
+          ...data,
+
+          // Utiliza el 'upsert' que lo que hace es verificar si el elemento existe y lo actualiza. Caso contrario, crea el registro.
+          materialRecipe: !data.materialRecipe
+            ? undefined
+            : {
+                upsert: data.materialRecipe.map(
+                  (recipe: OptionalMaterialRecipe) => ({
+                    where: {
+                      product_id_material_id: {
+                        product_id: data.id,
+                        material_id: recipe.material_id,
+                      },
+                    },
+                    update: {
+                      quantity: recipe.quantity,
+                    },
+                    create: {
+                      material_id: recipe.material_id,
+                      quantity: recipe.quantity,
+                    },
+                  }),
+                ),
+              },
+        },
       });
+
+      // Elimina los materiales en "materialRecipe" que no vienen en el payload
+      if (data.materialRecipe) {
+        const existingMaterialIds = data.materialRecipe.map(
+          (recipe) => recipe.material_id,
+        );
+        await this.prisma.materialRecipe.deleteMany({
+          where: {
+            product_id: data.id,
+            material_id: {
+              notIn: existingMaterialIds,
+            },
+          },
+        });
+      }
+
+      return await this.getOne({ id: data.id });
     } catch (error) {
       this.logger.error(`Error in update: ${error.message}`);
       throw error;
@@ -185,17 +228,6 @@ export class ProductsService {
       return await this.prisma.product.delete({ where: { id } });
     } catch (error) {
       this.logger.error(`Error in delete: ${error.message}`);
-      throw error;
-    }
-  }
-
-  async addProduction(list: Product[]) {
-    try {
-      list.forEach((element) => {
-        this.update(element);
-      });
-    } catch (error) {
-      this.logger.error(`Error in addProduction: ${error.message}`);
       throw error;
     }
   }

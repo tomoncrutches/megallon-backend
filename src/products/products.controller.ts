@@ -127,10 +127,10 @@ export class ProductsController {
   @Put()
   async update(
     @UploadedFile() file: Express.Multer.File,
-    @Body() data: { product: Product | string },
+    @Body() data: { product: string },
     @Headers('authorization') authorization: string,
   ) {
-    const payload: Product = JSON.parse(data.product as string);
+    const payload: ProductForCreate = JSON.parse(data.product);
     try {
       if (!('id' in payload))
         throw new ForbiddenException('El ID es requerido.');
