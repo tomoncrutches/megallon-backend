@@ -15,6 +15,7 @@ export class ClientsService {
         data: {
           lat: payload.address.lat,
           lon: payload.address.lon,
+          address: payload.address.address,
         },
       });
       return await this.prisma.client.create({
@@ -35,6 +36,7 @@ export class ClientsService {
   async getAll(): Promise<Client[]> {
     try {
       return this.prisma.client.findMany({
+        where: { attention: { not: null } },
         include: {
           address: true,
         },
@@ -54,6 +56,58 @@ export class ClientsService {
       if (!dbClient) throw new NotFoundException('El cliente no existe.');
 
       return dbClient;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async update(payload: ClientExtended): Promise<Client> {
+    try {
+      const dbClient = await this.prisma.client.findFirst({
+        where: { id: payload.id },
+        include: { address: true },
+      });
+      if (!dbClient) throw new NotFoundException('El cliente no existe.');
+
+      const address = await this.prisma.clientCoordinate.update({
+        where: { id: dbClient.address.id },
+        data: {
+          lat: payload.address.lat,
+          lon: payload.address.lon,
+          address: payload.address.address,
+        },
+      });
+      return await this.prisma.client.update({
+        where: { id: dbClient.id },
+        data: {
+          name: payload.name,
+          email: payload.email,
+          phone: payload.phone,
+          attention: payload.attention,
+          address_id: address.id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async delete(id: string): Promise<Client> {
+    try {
+      const dbClient = await this.prisma.client.findFirst({
+        where: {
+          id,
+        },
+        include: { address: true },
+      });
+      if (!dbClient) throw new NotFoundException('El cliente no existe.');
+
+      return await this.prisma.client.update({
+        where: { id: dbClient.id },
+        data: {
+          attention: null,
+        },
+      });
     } catch (error) {
       throw error;
     }
