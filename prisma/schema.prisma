@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -25,7 +25,7 @@ model User {
 model Product {
   id               String             @id @default(uuid())
   name             String
-  stock            Int
+  stock            Int?
   type             ProductType        @relation(fields: [type_id], references: [id])
   type_id          String // Cambiado a type_id para seguir la convención
   image            String
@@ -46,7 +46,7 @@ model Client {
   name       String
   email      String
   phone      String
-  attention  String           @default("Sin horarios")
+  attention  String?          @default("Sin horarios")
   address    ClientCoordinate @relation(fields: [address_id], references: [id])
   address_id String
   sale       Sale[]
@@ -76,7 +76,7 @@ model MaterialRecipe {
   product     Product  @relation(fields: [product_id], references: [id])
   product_id  String
 
-  @@unique([product_id,material_id])
+  @@unique([product_id, material_id])
 }
 
 model Sale {

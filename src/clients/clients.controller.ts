@@ -3,11 +3,13 @@ import { ClientsService } from './clients.service';
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   Headers,
   Logger,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -67,6 +69,52 @@ export class ClientsController {
       if (isEmpty(client))
         throw new ForbiddenException('Los atributos son requeridos.');
       return await this.service.getOne(client);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Put()
+  async update(
+    @Body() data: ClientExtended,
+    @Headers('authorization') authorization: string,
+  ) {
+    try {
+      const client = await this.service.update(data);
+      const { sub } = await this.jwtService.decode(getToken(authorization));
+
+      await this.historyService.create({
+        action: 'Cliente Actualizado',
+        description: `Se actualizó el cliente con el nombre ${client.name}.`,
+        user_id: sub,
+      });
+
+      return client;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete()
+  async delete(
+    @Query() client: Client,
+    @Headers('authorization') authorization: string,
+  ) {
+    try {
+      const { sub } = await this.jwtService.decode(getToken(authorization));
+      if (isEmpty(client))
+        throw new ForbiddenException('Los atributos son requeridos.');
+      const client_delete = await this.service.delete(client);
+      await this.historyService.create({
+        action: 'Cliente Eliminado',
+        description: `Se eliminó el cliente con el nombre ${client_delete.name}.`,
+        user_id: sub,
+      });
+
+      return client_delete;
     } catch (error) {
       throw error;
     }
