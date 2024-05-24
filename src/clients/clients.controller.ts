@@ -85,7 +85,7 @@ export class ClientsController {
       const { sub } = await this.jwtService.decode(getToken(authorization));
 
       await this.historyService.create({
-        action: 'Cliente Actualizado',
+        action: 'Actualización de Cliente',
         description: `Se actualizó el cliente con el nombre ${client.name}.`,
         user_id: sub,
       });
@@ -100,21 +100,24 @@ export class ClientsController {
   @UseGuards(AuthGuard)
   @Delete()
   async delete(
-    @Query() client: Client,
+    @Query() query: { id: string },
     @Headers('authorization') authorization: string,
   ) {
     try {
       const { sub } = await this.jwtService.decode(getToken(authorization));
-      if (isEmpty(client))
+      if (!query.id)
         throw new ForbiddenException('Los atributos son requeridos.');
-      const client_delete = await this.service.delete(client);
+
+      const { id } = query;
+
+      const deletedClient = await this.service.delete(id);
       await this.historyService.create({
-        action: 'Cliente Eliminado',
-        description: `Se eliminó el cliente con el nombre ${client_delete.name}.`,
+        action: 'Eliminación de Cliente',
+        description: `Se eliminó el cliente con el nombre ${deletedClient.name}.`,
         user_id: sub,
       });
 
-      return client_delete;
+      return deletedClient;
     } catch (error) {
       throw error;
     }

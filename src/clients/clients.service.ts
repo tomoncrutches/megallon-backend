@@ -15,6 +15,7 @@ export class ClientsService {
         data: {
           lat: payload.address.lat,
           lon: payload.address.lon,
+          address: payload.address.address,
         },
       });
       return await this.prisma.client.create({
@@ -73,6 +74,7 @@ export class ClientsService {
         data: {
           lat: payload.address.lat,
           lon: payload.address.lon,
+          address: payload.address.address,
         },
       });
       return await this.prisma.client.update({
@@ -90,10 +92,12 @@ export class ClientsService {
     }
   }
 
-  async delete(client: OptionalClient): Promise<Client> {
+  async delete(id: string): Promise<Client> {
     try {
       const dbClient = await this.prisma.client.findFirst({
-        where: client,
+        where: {
+          id,
+        },
         include: { address: true },
       });
       if (!dbClient) throw new NotFoundException('El cliente no existe.');
