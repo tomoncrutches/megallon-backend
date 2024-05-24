@@ -160,7 +160,7 @@ export class ProductsController {
   @UseGuards(AuthGuard)
   @Delete()
   async delete(
-    @Body() data: { id: string },
+    @Query() data: { id: string },
     @Headers('authorization') authorization: string,
   ) {
     const { id } = data;
