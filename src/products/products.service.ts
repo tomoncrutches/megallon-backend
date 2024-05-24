@@ -40,6 +40,7 @@ export class ProductsService {
     // The findMany method is used to retrieve all records from the database
     try {
       return await this.prisma.product.findMany({
+        where: { stock: { not: null } },
         include: { type: true, materialRecipe: true },
       });
     } catch (error) {
@@ -225,7 +226,10 @@ export class ProductsService {
 
   async delete(id: string): Promise<Product> {
     try {
-      return await this.prisma.product.delete({ where: { id } });
+      return await this.prisma.product.update({
+        where: { id },
+        data: { stock: null },
+      });
     } catch (error) {
       this.logger.error(`Error in delete: ${error.message}`);
       throw error;
