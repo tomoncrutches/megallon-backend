@@ -53,17 +53,18 @@ model Client {
 }
 
 model ClientCoordinate {
-  id     String   @id @default(uuid())
-  lat    String
-  lon    String
-  address String @default("-")
-  client Client[]
+  id      String   @id @default(uuid())
+  lat     String
+  lon     String
+  address String   @default("-")
+  client  Client[]
 }
 
 model Material {
   id             String           @id @default(uuid())
   name           String
   stock          Float
+  type           String           @default("otros")
   image          String
   actual_price   Float
   materialRecipe MaterialRecipe[]
