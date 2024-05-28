@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
@@ -26,10 +20,10 @@ model Product {
   id               String             @id @default(uuid())
   name             String
   stock            Int?
-  type             ProductType        @relation(fields: [type_id], references: [id])
-  type_id          String // Cambiado a type_id para seguir la convención
+  type_id          String
   image            String
   materialRecipe   MaterialRecipe[]
+  type             ProductType        @relation(fields: [type_id], references: [id])
   ProductionDetail ProductionDetail[]
   SaleDetail       SaleDetail[]
 }
@@ -46,18 +40,18 @@ model Client {
   name       String
   email      String
   phone      String
+  address_id String
   attention  String?          @default("Sin horarios")
   address    ClientCoordinate @relation(fields: [address_id], references: [id])
-  address_id String
   sale       Sale[]
 }
 
 model ClientCoordinate {
-  id     String   @id @default(uuid())
-  lat    String
-  lon    String
-  address String @default("-")
-  client Client[]
+  id      String   @id @default(uuid())
+  lat     String
+  lon     String
+  address String   @default("-")
+  client  Client[]
 }
 
 model Material {
@@ -66,39 +60,40 @@ model Material {
   stock          Float
   image          String
   actual_price   Float
+  type           String           @default("otros")
   materialRecipe MaterialRecipe[]
 }
 
 model MaterialRecipe {
   id          String   @id @default(uuid())
+  material_id String
+  product_id  String
   quantity    Float
   material    Material @relation(fields: [material_id], references: [id])
-  material_id String
   product     Product  @relation(fields: [product_id], references: [id])
-  product_id  String
 
   @@unique([product_id, material_id])
 }
 
 model Sale {
   id         String       @id @default(uuid())
-  number     Int          @default(autoincrement())
   date       DateTime
   total      Float
-  paid       Boolean      @default(false)
-  delivered  Boolean      @default(false)
-  client     Client       @relation(fields: [client_id], references: [id])
   client_id  String
+  delivered  Boolean      @default(false)
+  paid       Boolean      @default(false)
+  number     Int          @default(autoincrement())
+  client     Client       @relation(fields: [client_id], references: [id])
   saleDetail SaleDetail[]
 }
 
 model SaleDetail {
   id         String  @id @default(uuid())
   quantity   Int
-  product    Product @relation(fields: [product_id], references: [id])
-  product_id String
-  sale       Sale    @relation(fields: [sale_id], references: [id])
   sale_id    String
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id])
+  sale       Sale    @relation(fields: [sale_id], references: [id])
 }
 
 model Production {
@@ -111,11 +106,11 @@ model Production {
 
 model ProductionDetail {
   id            String     @id @default(uuid())
-  production    Production @relation(fields: [production_id], references: [id])
   production_id String
-  product       Product    @relation(fields: [product_id], references: [id])
   product_id    String
   quantity      Int
+  product       Product    @relation(fields: [product_id], references: [id])
+  production    Production @relation(fields: [production_id], references: [id])
 }
 
 model Log {
@@ -123,8 +118,8 @@ model Log {
   date        DateTime @default(now())
   action      String
   description String
-  user        User     @relation(fields: [user_id], references: [id])
   user_id     String
+  user        User     @relation(fields: [user_id], references: [id])
 }
 
 model Transaction {
@@ -133,7 +128,5 @@ model Transaction {
   value     Float
   type      String
   date      DateTime
-  parent_id String? // Esto hace referencia a si
-  // la transaccion es generado por una compra (compra de material)
-  // o una venta (venta de producto)
+  parent_id String?
 }
