@@ -32,7 +32,7 @@ model ProductType {
   id        String    @id @default(uuid())
   name      String
   price     Float
-  min_price Float?    @default(0)
+  retail_price Float?    @default(0)
   Product   Product[]
 }
 
@@ -81,7 +81,7 @@ model Sale {
   date       DateTime
   total      Float
   client_id  String
-  minorist   Boolean?     @default(false)
+  isRetail   Boolean?     @default(false)
   delivered  Boolean      @default(false)
   paid       Boolean      @default(false)
   number     Int          @default(autoincrement())
