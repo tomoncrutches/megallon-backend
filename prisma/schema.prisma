@@ -82,6 +82,7 @@ model Sale {
   total      Float
   client_id  String
   isRetail   Boolean?     @default(false)
+  note       String?
   delivered  Boolean      @default(false)
   paid       Boolean      @default(false)
   number     Int          @default(autoincrement())
