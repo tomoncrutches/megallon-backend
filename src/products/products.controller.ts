@@ -93,13 +93,15 @@ export class ProductsController {
   @UseGuards(AuthGuard)
   @UseGuards(AuthGuard)
   @Patch('types')
-  async updateType(@Body() payload: { id: string; price: number }) {
-    const { id, price } = payload;
-    if (!id || !price)
+  async updateType(
+    @Body() payload: { id: string; price: number; retail_price: number },
+  ) {
+    const { id, price, retail_price } = payload;
+    if (!id || !price || !retail_price)
       throw new ForbiddenException('Los atributos son requeridos.');
 
     try {
-      return await this.service.updateType(id, price);
+      return await this.service.updateType(id, price, retail_price);
     } catch (error) {
       throw error;
     }

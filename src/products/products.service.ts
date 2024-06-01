@@ -143,13 +143,17 @@ export class ProductsService {
     }
   }
 
-  async updateType(id: string, value: number): Promise<ProductType> {
+  async updateType(
+    id: string,
+    price: number,
+    retail_price: number,
+  ): Promise<ProductType> {
     try {
       return await this.prisma.productType.update({
         where: {
           id,
         },
-        data: { price: value },
+        data: { price: price, retail_price: retail_price },
       });
     } catch (error) {
       this.logger.error(error);

@@ -29,10 +29,11 @@ model Product {
 }
 
 model ProductType {
-  id      String    @id @default(uuid())
-  name    String
-  price   Float
-  Product Product[]
+  id        String    @id @default(uuid())
+  name      String
+  price     Float
+  retail_price Float?    @default(0)
+  Product   Product[]
 }
 
 model Client {
@@ -80,6 +81,8 @@ model Sale {
   date       DateTime
   total      Float
   client_id  String
+  isRetail   Boolean?     @default(false)
+  note       String?
   delivered  Boolean      @default(false)
   paid       Boolean      @default(false)
   number     Int          @default(autoincrement())
