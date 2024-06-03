@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   OptionalMaterialRecipe,
   OptionalProduct,
@@ -16,10 +21,22 @@ export class ProductsService {
   private readonly logger = new Logger('Product Service');
 
   async create(data: ProductForCreate): Promise<Product> {
-    // The create method is used to create a new record in the database
     try {
+      // Check if a product with the same name already exists
+      const existingProduct = await this.prisma.product.findFirst({
+        where: { name: data.name },
+      });
+
+      if (existingProduct) {
+        throw new ConflictException(
+          'Un producto con el mismo nombre ya existe.',
+        );
+      }
+
+      // If not, proceed to create the new product
       const payload = { ...data, materialRecipe: undefined };
       const newProduct = await this.prisma.product.create({ data: payload });
+
       for (const recipe of data.materialRecipe) {
         await this.prisma.materialRecipe.create({
           data: {
@@ -29,6 +46,7 @@ export class ProductsService {
           },
         });
       }
+
       return newProduct;
     } catch (error) {
       this.logger.error(`Error in create: ${error.message}`);
