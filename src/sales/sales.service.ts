@@ -214,6 +214,7 @@ export class SalesService {
         });
       }
       await this.prisma.saleDetail.deleteMany({ where: { sale_id: id } });
+      await this.transactionService.deleteByParent(id);
       return await this.prisma.sale.delete({ where: { id } });
     } catch (error) {
       this.logger.error(error.message);
