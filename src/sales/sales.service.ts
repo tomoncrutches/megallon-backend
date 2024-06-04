@@ -146,7 +146,7 @@ export class SalesService {
       } else {
         const client = await this.clientsService.getOne({ id: sale.client_id });
         await this.transactionService.create({
-          date: sale.date,
+          date: new Date(),
           name: client.name,
           value: sale.total,
           parent_id: sale.id,
