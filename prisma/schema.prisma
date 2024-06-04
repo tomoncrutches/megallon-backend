@@ -83,6 +83,8 @@ model Sale {
   client_id  String
   isRetail   Boolean?     @default(false)
   note       String?
+  discount_classic Float? @default(0)
+  discount_gourmet Float? @default(0)
   delivered  Boolean      @default(false)
   paid       Boolean      @default(false)
   number     Int          @default(autoincrement())

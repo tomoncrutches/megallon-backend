@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { MaterialForBuy, OptionalMaterial } from 'src/types/material.types';
 
 import { Material } from '@prisma/client';
@@ -15,9 +20,21 @@ export class MaterialService {
 
   async create(data: Material): Promise<Material> {
     try {
+      // Check if a material with the same name already exists
+      const existingMaterial = await this.prisma.material.findFirst({
+        where: { name: data.name },
+      });
+
+      if (existingMaterial) {
+        throw new ConflictException(
+          'Un material con el mismo nombre ya existe.',
+        );
+      }
+
+      // If not, proceed to create the new material
       return await this.prisma.material.create({ data });
     } catch (error) {
-      this.logger.error(error.message);
+      this.logger.error(`Error in create: ${error.message}`);
       throw error;
     }
   }
