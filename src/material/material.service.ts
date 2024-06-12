@@ -138,8 +138,8 @@ export class MaterialService {
       //etiqueta por paquete
       await this.prisma.material.update({
         where: {
-          id: labels.find((l) =>
-            l.name.toLowerCase().includes(name.toLowerCase()),
+          id: labels.find(
+            (l) => l.name.toLowerCase() === `Etiquetas ${name}`.toLowerCase(),
           ).id,
         },
         data: { stock: { decrement: quantity } },
