@@ -46,7 +46,7 @@ export class ProductionService {
         const product = await this.productsService.getOne({ id: element.id });
         await this.materialService.consumePackaging(
           element.quantity,
-          product.name,
+          product.name.trim(),
         );
         await this.productsService.decrementForRecipe(
           element.id,
