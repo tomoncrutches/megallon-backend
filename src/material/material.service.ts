@@ -117,4 +117,24 @@ export class MaterialService {
       throw error;
     }
   }
+
+  async consumePackaging(quantity, name): Promise<void> {
+    try {
+      //Descuento de separadores por paquete
+      await this.prisma.material.update({
+        where: { id: '43cdd4e0-9d3b-4bde-8469-530a6bc1bff9' },
+        data: { stock: { decrement: quantity * 4 } },
+      });
+      //Descuento bolsa por paquete
+      await this.prisma.material.update({
+        where: { id: 'e167f44a-ebd1-4bac-9dbd-8b505449b99f' },
+        data: { stock: { decrement: quantity } },
+      });
+      //etiqueta por paquete
+      console.log(name);
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
 }
