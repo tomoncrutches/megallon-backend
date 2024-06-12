@@ -5,6 +5,7 @@ import {
 } from 'src/types/productions.types';
 import { Production, ProductionDetail } from '@prisma/client';
 
+import { MaterialService } from 'src/material/material.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
 
@@ -13,6 +14,7 @@ export class ProductionService {
   constructor(
     private prisma: PrismaService,
     private productsService: ProductsService,
+    private materialService: MaterialService,
   ) {}
   private readonly logger = new Logger('Production Service');
 
@@ -41,6 +43,11 @@ export class ProductionService {
             quantity: element.quantity,
           },
         });
+        const product = await this.productsService.getOne({ id: element.id });
+        await this.materialService.consumePackaging(
+          element.quantity,
+          product.name,
+        );
         await this.productsService.decrementForRecipe(
           element.id,
           element.recipe_quantity,

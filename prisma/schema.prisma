@@ -63,6 +63,7 @@ model Material {
   actual_price   Float
   type           String           @default("otros")
   materialRecipe MaterialRecipe[]
+  isRemovable    Boolean          @default(true)
 }
 
 model MaterialRecipe {

@@ -8,6 +8,7 @@ import { MaterialForBuy, OptionalMaterial } from 'src/types/material.types';
 
 import { Material } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { StaticMaterialId } from 'src/const/static-materials-id.enum';
 import { TransactionService } from 'src/transaction/transaction.service';
 
 @Injectable()
@@ -112,6 +113,48 @@ export class MaterialService {
   async delete(id: string): Promise<Material> {
     try {
       return await this.prisma.material.delete({ where: { id } });
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async consumePackaging(quantity: number, name: string): Promise<void> {
+    try {
+      //Descuento de separadores por paquete
+      await this.prisma.material.update({
+        where: { id: StaticMaterialId.Separador },
+        data: { stock: { decrement: quantity * 4 } },
+      });
+      //Descuento bolsa por paquete
+      await this.prisma.material.update({
+        where: { id: StaticMaterialId.Bolsa },
+        data: { stock: { decrement: quantity } },
+      });
+
+      //Obtiene los materiales "Etiquetas"
+      const labels = await this.getLabels();
+
+      //etiqueta por paquete
+      await this.prisma.material.update({
+        where: {
+          id: labels.find((l) =>
+            l.name.toLowerCase().includes(name.toLowerCase()),
+          ).id,
+        },
+        data: { stock: { decrement: quantity } },
+      });
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  private async getLabels(): Promise<Material[]> {
+    try {
+      return await this.prisma.material.findMany({
+        where: { name: { contains: 'Etiquetas' } },
+      });
     } catch (error) {
       this.logger.error(error.message);
       throw error;
