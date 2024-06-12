@@ -8,6 +8,7 @@ import { MaterialForBuy, OptionalMaterial } from 'src/types/material.types';
 
 import { Material } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { StaticMaterialId } from 'src/const/static-materials-id.enum';
 import { TransactionService } from 'src/transaction/transaction.service';
 
 @Injectable()
@@ -122,12 +123,12 @@ export class MaterialService {
     try {
       //Descuento de separadores por paquete
       await this.prisma.material.update({
-        where: { id: '43cdd4e0-9d3b-4bde-8469-530a6bc1bff9' },
+        where: { id: StaticMaterialId.Separador },
         data: { stock: { decrement: quantity * 4 } },
       });
       //Descuento bolsa por paquete
       await this.prisma.material.update({
-        where: { id: 'e167f44a-ebd1-4bac-9dbd-8b505449b99f' },
+        where: { id: StaticMaterialId.Bolsa },
         data: { stock: { decrement: quantity } },
       });
 
