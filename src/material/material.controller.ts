@@ -153,7 +153,7 @@ export class MaterialController {
 
       await this.historyService.create({
         action: 'Compra de Material',
-        description: `Se compró ${quantity} gramos del material ${material.name} a un precio de $${price} por kg.`,
+        description: `Se compró ${quantity.toLocaleString('es-AR')}g del material ${material.name} a un precio de $${price.toLocaleString('es-AR')} por kg.`,
         user_id: sub,
       });
 
