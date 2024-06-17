@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 
 import { FixedSpentTypeService } from './fixed-spent-type.service';
 import { FixedSpentType } from '@prisma/client';
@@ -23,6 +23,16 @@ export class FixedSpentTypeController {
   async create(@Body() data: FixedSpentType) {
     try {
       return await this.service.create(data);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Put()
+  async update(@Body() data: FixedSpentType) {
+    try {
+      return await this.service.update(data);
     } catch (error) {
       throw error;
     }

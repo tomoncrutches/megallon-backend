@@ -21,4 +21,15 @@ export class FixedSpentTypeService {
       throw error;
     }
   }
+
+  async update(payload: FixedSpentType): Promise<FixedSpentType> {
+    try {
+      return await this.prisma.fixedSpentType.update({
+        where: { id: payload.id },
+        data: payload,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 }
