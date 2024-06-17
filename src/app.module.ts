@@ -17,6 +17,7 @@ import { ProductsModule } from './products/products.module';
 import { SalesModule } from './sales/sales.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { FixedSpentTypeModule } from './fixed-spent-type/fixed-spent-type.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TransactionModule } from './transaction/transaction.module';
     ClientsModule,
     CloudinaryModule,
     TransactionModule,
+    FixedSpentTypeModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, CloudinaryService],

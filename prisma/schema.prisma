@@ -136,3 +136,10 @@ model Transaction {
   date      DateTime
   parent_id String?
 }
+
+model FixedSpentType {
+  id        String   @id @default(uuid())
+  name      String
+  value     Float?
+  isPerHour Boolean
+}
