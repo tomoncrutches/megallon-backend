@@ -7,6 +7,7 @@ import {
 import { Sale, SaleDetail } from '@prisma/client';
 import { SaleExtended, SaleToCreate } from 'src/types/sale.types';
 
+import { ClientTimeInformation } from 'src/types/client.types';
 import { ClientsService } from 'src/clients/clients.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
@@ -229,6 +230,35 @@ export class SalesService {
           id,
         },
       });
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  async getPredict(client_id: string): Promise<ClientTimeInformation> {
+    try {
+      const sales = await this.prisma.sale.findMany({
+        where: { client_id },
+        orderBy: { date: 'desc' },
+      });
+
+      if (sales.length < 2) {
+        return { daysForNextBuy: -1, buyInterval: -1 };
+      }
+
+      const [lastSale, secondLastSale] = sales;
+      const msPerDay = 1000 * 60 * 60 * 24;
+
+      const buyIntervalMs =
+        lastSale.date.getTime() - secondLastSale.date.getTime();
+      const nextBuyPredictionMs = lastSale.date.getTime() + buyIntervalMs;
+      const daysForNextBuy = (nextBuyPredictionMs - Date.now()) / msPerDay;
+
+      return {
+        daysForNextBuy: Math.max(0, Math.round(daysForNextBuy)),
+        buyInterval: Math.round(buyIntervalMs / msPerDay),
+      };
     } catch (error) {
       this.logger.error(error.message);
       throw error;

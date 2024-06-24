@@ -227,4 +227,14 @@ export class SalesController {
       throw error;
     }
   }
+
+  @Get('predict')
+  async predict(@Query() query: { client_id: string }) {
+    try {
+      return await this.service.getPredict(query.client_id);
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
 }
