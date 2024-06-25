@@ -1,7 +1,8 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseGuards } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
 import { StatisticsService } from './statistics.service';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('statistics')
 export class StatisticsController {
@@ -10,7 +11,7 @@ export class StatisticsController {
     private readonly jwtService: JwtService,
   ) {}
   private readonly logger = new Logger('StatisticsController');
-
+  @UseGuards(AuthGuard)
   @Get('products-sold')
   async getProductsSold(@Query('timeRange') timeRange: string) {
     try {
