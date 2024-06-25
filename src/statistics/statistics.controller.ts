@@ -11,11 +11,22 @@ export class StatisticsController {
     private readonly jwtService: JwtService,
   ) {}
   private readonly logger = new Logger('StatisticsController');
+
   @UseGuards(AuthGuard)
   @Get('products-sold')
   async getProductsSold(@Query('timeRange') timeRange: string) {
     try {
       return await this.service.getProductsSold(timeRange);
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  @Get('clients-purchases')
+  async getClientsPurchases(@Query('timeRange') timeRange: string) {
+    try {
+      return await this.service.getClientsPurchases(timeRange);
     } catch (error) {
       this.logger.error(error.message);
       throw error;
