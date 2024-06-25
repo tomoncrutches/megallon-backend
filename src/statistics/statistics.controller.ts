@@ -23,10 +23,22 @@ export class StatisticsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('clients-purchases')
   async getClientsPurchases(@Query('timeRange') timeRange: string) {
     try {
       return await this.service.getClientsPurchases(timeRange);
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('general-statistics')
+  async getGeneralStatistics(@Query('timeRange') timeRange: string) {
+    try {
+      return await this.service.getGeneralStatistics(timeRange);
     } catch (error) {
       this.logger.error(error.message);
       throw error;

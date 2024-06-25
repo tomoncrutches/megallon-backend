@@ -10,3 +10,9 @@ export interface ClientStatistics {
   quantityProducts: number;
   totalAmount: number;
 }
+
+export interface generalStatistics {
+  salesQuantity: number;
+  incomesTotal: number;
+  productsSold: number;
+}

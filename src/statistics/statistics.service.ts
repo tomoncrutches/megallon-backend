@@ -1,6 +1,7 @@
 import {
   ClientStatistics,
   ProductsStatistics,
+  generalStatistics,
 } from 'src/types/statistic.types';
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -123,6 +124,39 @@ export class StatisticsService {
     }
   }
 
+  async getGeneralStatistics(timeRange: string): Promise<generalStatistics> {
+    try {
+      const generalStatistics = {
+        salesQuantity: 0,
+        incomesTotal: 0,
+        productsSold: 0,
+      };
+      const startDate = this.getTimeRange(timeRange);
+      const sales = await this.prisma.sale.findMany({
+        where: {
+          date: {
+            gte: startDate,
+          },
+        },
+      });
+      for (const sale of sales) {
+        generalStatistics.salesQuantity += 1;
+        generalStatistics.incomesTotal += sale.total;
+        const saleDetail = await this.prisma.saleDetail.findMany({
+          where: {
+            sale_id: sale.id,
+          },
+        });
+        for (const item of saleDetail) {
+          generalStatistics.productsSold += item.quantity;
+        }
+      }
+      return generalStatistics;
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
+  }
   private getTimeRange(timeRange: string): Date {
     const limitedDate = new Date();
     switch (timeRange) {
