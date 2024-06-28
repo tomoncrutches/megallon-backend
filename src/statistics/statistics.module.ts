@@ -1,4 +1,5 @@
 import { ClientsService } from 'src/clients/clients.service';
+import { MaterialService } from 'src/material/material.service';
 import { Module } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
@@ -15,6 +16,7 @@ import { TransactionService } from 'src/transaction/transaction.service';
     ProductsService,
     TransactionService,
     SalesService,
+    MaterialService,
   ],
   controllers: [StatisticsController],
 })
