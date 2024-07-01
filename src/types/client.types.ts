@@ -12,3 +12,7 @@ export type ClientTimeInformation = {
   daysForNextBuy: number;
   buyInterval: number;
 };
+
+export interface ClientsWithPredicts extends Client {
+  predict: ClientTimeInformation;
+}
