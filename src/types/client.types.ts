@@ -7,3 +7,12 @@ export interface ClientExtended extends Client {
 export type OptionalClient = {
   [key in keyof Client]?: Client[key];
 };
+
+export type ClientTimeInformation = {
+  daysForNextBuy: number;
+  buyInterval: number;
+};
+
+export interface ClientsWithPredicts extends Client {
+  predict: ClientTimeInformation;
+}

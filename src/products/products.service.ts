@@ -4,20 +4,24 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { Material, Product, ProductType } from '@prisma/client';
 import {
   OptionalMaterialRecipe,
   OptionalProduct,
   ProductForCreate,
   RecipeComplete,
 } from 'src/types/product.types';
-import { Product, ProductType } from '@prisma/client';
 
+import { MaterialService } from 'src/material/material.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductBasic } from 'src/types/sale.types';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private materialService: MaterialService,
+  ) {}
   private readonly logger = new Logger('Product Service');
 
   async create(data: ProductForCreate): Promise<Product> {
@@ -36,7 +40,16 @@ export class ProductsService {
       // If not, proceed to create the new product
       const payload = { ...data, materialRecipe: undefined };
       const newProduct = await this.prisma.product.create({ data: payload });
-
+      const labelsProduct: Material = {
+        id: undefined,
+        name: 'Etiquetas ' + data.name,
+        stock: 0,
+        image: data.image,
+        actual_price: 1000,
+        type: 'Limpieza',
+        isRemovable: false,
+      };
+      await this.materialService.create(labelsProduct);
       for (const recipe of data.materialRecipe) {
         await this.prisma.materialRecipe.create({
           data: {

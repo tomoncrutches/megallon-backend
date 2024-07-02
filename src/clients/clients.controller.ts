@@ -1,4 +1,4 @@
-import { ClientExtended } from 'src/types/client.types';
+import { ClientExtended, ClientsWithPredicts } from 'src/types/client.types';
 import { ClientsService } from './clients.service';
 import {
   Body,
@@ -18,13 +18,15 @@ import { Client } from '@prisma/client';
 import { getToken, isEmpty } from 'src/lib/utils';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';
+import { SalesService } from 'src/sales/sales.service';
 
 @Controller('clients')
 export class ClientsController {
   constructor(
     private readonly service: ClientsService,
-    private readonly historyService: HistoryService,
     private readonly jwtService: JwtService,
+    private readonly historyService: HistoryService,
+    private readonly salesService: SalesService,
   ) {}
   private readonly logger = new Logger('SalesController');
 
@@ -55,7 +57,14 @@ export class ClientsController {
   @Get()
   async getAll() {
     try {
-      return await this.service.getAll();
+      const clients = await this.service.getAll();
+      const clientsWithPredicts: ClientsWithPredicts[] = [];
+      for (const client of clients) {
+        const predict = await this.salesService.getPredict(client.id);
+        clientsWithPredicts.push({ ...client, predict });
+      }
+
+      return clientsWithPredicts;
     } catch (error) {
       this.logger.error(error.message);
       throw error;
