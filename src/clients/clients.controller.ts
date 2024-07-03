@@ -58,13 +58,14 @@ export class ClientsController {
   async getAll() {
     try {
       const clients = await this.service.getAll();
-      const clientsWithPredicts: ClientsWithPredicts[] = [];
-      for (const client of clients) {
-        const predict = await this.salesService.getPredict(client.id);
-        clientsWithPredicts.push({ ...client, predict });
-      }
+      // const clientsWithPredicts: ClientsWithPredicts[] = [];
+      // for (const client of clients) {
+      //   const predict = await this.salesService.getPredict(client.id);
+      //   clientsWithPredicts.push({ ...client, predict });
+      // }
 
-      return clientsWithPredicts;
+      // return clientsWithPredicts;
+      return clients;
     } catch (error) {
       this.logger.error(error.message);
       throw error;
