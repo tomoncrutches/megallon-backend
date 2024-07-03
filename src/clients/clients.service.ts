@@ -35,7 +35,7 @@ export class ClientsService {
 
   async getAll(): Promise<Client[]> {
     try {
-      return this.prisma.client.findMany({
+      return await this.prisma.client.findMany({
         where: { attention: { not: null } },
         include: {
           address: true,
