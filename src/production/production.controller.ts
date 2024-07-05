@@ -61,11 +61,11 @@ export class ProductionController {
 
   @UseGuards(AuthGuard)
   @Get('latest')
-  async getLastFourWeeks(@Query() params: { id: string }) {
+  async getLastEightWeeks(@Query() params: { id: string }) {
     try {
       if (!('id' in params))
         throw new ForbiddenException('El ID es requerido.');
-      return await this.service.getLastFourWeeks(params.id);
+      return await this.service.getLastEightWeeks(params.id);
     } catch (error) {
       throw error;
     }

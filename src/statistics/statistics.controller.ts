@@ -10,9 +10,17 @@ export class StatisticsController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getGeneralStatistics(@Query('timeRange') timeRange: string) {
+  async getGeneralStatistics(
+    @Query('timeRange') timeRange: string,
+    @Query('startDate') startDate?: Date,
+    @Query('endDate') endDate?: Date,
+  ) {
     try {
-      return await this.service.getGeneralStatistics(timeRange);
+      return await this.service.getGeneralStatistics(
+        timeRange,
+        startDate,
+        endDate,
+      );
     } catch (error) {
       this.logger.error(error.message);
       throw error;
@@ -21,9 +29,13 @@ export class StatisticsController {
 
   @UseGuards(AuthGuard)
   @Get('products-sold')
-  async getProductsSold(@Query('timeRange') timeRange: string) {
+  async getProductsSold(
+    @Query('timeRange') timeRange?: string,
+    @Query('startDate') startDate?: Date,
+    @Query('endDate') endDate?: Date,
+  ) {
     try {
-      return await this.service.getProductsSold(timeRange);
+      return await this.service.getProductsSold(timeRange, startDate, endDate);
     } catch (error) {
       this.logger.error(error.message);
       throw error;
@@ -32,9 +44,17 @@ export class StatisticsController {
 
   @UseGuards(AuthGuard)
   @Get('clients-purchases')
-  async getClientsPurchases(@Query('timeRange') timeRange: string) {
+  async getClientsPurchases(
+    @Query('timeRange') timeRange?: string,
+    @Query('startDate') startDate?: Date,
+    @Query('endDate') endDate?: Date,
+  ) {
     try {
-      return await this.service.getClientsPurchases(timeRange);
+      return await this.service.getClientsPurchases(
+        timeRange,
+        startDate,
+        endDate,
+      );
     } catch (error) {
       this.logger.error(error.message);
       throw error;

@@ -88,20 +88,20 @@ export class ProductionService {
     }
   }
 
-  async getLastFourWeeks(id: string) {
+  async getLastEightWeeks(id: string) {
     const currentDate = new Date();
 
-    const lastFourWeeksStartDate = new Date(currentDate);
-    lastFourWeeksStartDate.setDate(currentDate.getDate() - 7 * 4);
+    const lastEightWeeksStartDate = new Date(currentDate);
+    lastEightWeeksStartDate.setDate(currentDate.getDate() - 7 * 8);
 
-    const lastFourWeeksEndDate = new Date(currentDate);
+    const lastEightWeeksEndDate = new Date(currentDate);
 
     try {
       return await this.prisma.production.findMany({
         where: {
           date: {
-            gte: lastFourWeeksStartDate,
-            lte: lastFourWeeksEndDate,
+            gte: lastEightWeeksStartDate,
+            lte: lastEightWeeksEndDate,
           },
           ProductionDetail: {
             some: {

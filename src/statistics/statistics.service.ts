@@ -22,15 +22,15 @@ export class StatisticsService {
   ) {}
   private readonly logger = new Logger('StatisticsService');
 
-  async getProductsSold(timeRange: string): Promise<ProductStatistics[]> {
+  async getProductsSold(
+    timeRange?: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<ProductStatistics[]> {
     try {
-      const startDate = this.getTimeRange(timeRange);
+      const filterCondition = this.getCondition(timeRange, startDate, endDate);
       const sales = await this.prisma.sale.findMany({
-        where: {
-          date: {
-            gte: startDate,
-          },
-        },
+        where: filterCondition,
         include: {
           saleDetail: {
             include: {
@@ -70,67 +70,23 @@ export class StatisticsService {
       const result: ProductStatistics[] = Object.values(summary);
 
       return result.sort((a, b) => b.quantitySold - a.quantitySold);
-
-      // CODIGO ANTERIOR
-
-      // const sales = await this.prisma.sale.findMany({
-      //   where: {
-      //     date: {
-      //       gte: startDate,
-      //     },
-      //   },
-      // });
-      // const ProductStatistics: ProductStatistics[] = [];
-      // for (const sale of sales) {
-      //   const saleDetail = await this.prisma.saleDetail.findMany({
-      //     where: {
-      //       sale_id: sale.id,
-      //     },
-      //     include: {
-      //       product: {
-      //         include: {
-      //           type: true,
-      //         },
-      //       },
-      //     },
-      //   });
-
-      //   for (const item of saleDetail) {
-      //     const productIndex = ProductStatistics.findIndex(
-      //       (product) => product.name === item.product.name,
-      //     );
-      //     if (productIndex === -1) {
-      //       ProductStatistics.push({
-      //         name: item.product.name,
-      //         quantitySold: item.quantity,
-      //         totalAmount: item.quantity * item.product.type.price,
-      //       });
-      //     } else {
-      //       ProductStatistics[productIndex].quantitySold += item.quantity;
-      //       ProductStatistics[productIndex].totalAmount +=
-      //         item.quantity * item.product.type.price;
-      //     }
-      //   }
-      // }
-
-      // return ProductStatistics.sort((a, b) => b.quantitySold - a.quantitySold);
     } catch (error) {
       this.logger.error(error.message);
       throw error;
     }
   }
 
-  async getClientsPurchases(timeRange: string): Promise<ClientStatistics[]> {
+  async getClientsPurchases(
+    timeRange?: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<ClientStatistics[]> {
     try {
-      const startDate = this.getTimeRange(timeRange);
+      const filterCondition = this.getCondition(timeRange, startDate, endDate);
       const clients = await this.prisma.client.findMany({
         include: {
           sale: {
-            where: {
-              date: {
-                gte: startDate,
-              },
-            },
+            where: filterCondition,
             include: {
               saleDetail: true,
             },
@@ -170,66 +126,21 @@ export class StatisticsService {
       return result
         .filter((item) => item.name !== 'PARTICULAR')
         .sort((a, b) => b.quantityPurchases - a.quantityPurchases);
-
-      // CODIGO ANTERIOR
-      // const sales = await this.prisma.sale.findMany({
-      //   where: {
-      //     date: {
-      //       gte: startDate,
-      //     },
-      //   },
-      //   include: {
-      //     client: true,
-      //   },
-      // });
-      // const clientsStatistics: ClientStatistics[] = [];
-      // for (const sale of sales) {
-      //   const saleDetail = await this.prisma.saleDetail.findMany({
-      //     where: {
-      //       sale_id: sale.id,
-      //     },
-      //   });
-      //   let clientIndex = clientsStatistics.findIndex(
-      //     (client) => client.name === sale.client.name,
-      //   );
-      //   for (const item of saleDetail) {
-      //     if (clientIndex === -1) {
-      //       clientsStatistics.push({
-      //         name: sale.client.name,
-      //         quantityPurchases: 0,
-      //         quantityProducts: item.quantity,
-      //         totalAmount: 0,
-      //       });
-      //       clientIndex = clientsStatistics.length - 1;
-      //     } else {
-      //       clientsStatistics[clientIndex].quantityProducts += item.quantity;
-      //     }
-      //   }
-      //   clientsStatistics[clientIndex].totalAmount += sale.total;
-      //   clientsStatistics[clientIndex].quantityPurchases += 1;
-      // }
-      // const filteredClientsStatistics = clientsStatistics.filter(
-      //   (client) => client.name !== 'PARTICULAR',
-      // );
-
-      // return filteredClientsStatistics.sort(
-      //   (a, b) => b.quantityPurchases - a.quantityPurchases,
-      // );
     } catch (error) {
       this.logger.error(error.message);
       throw error;
     }
   }
 
-  async getGeneralStatistics(timeRange: string): Promise<GeneralStatistics> {
+  async getGeneralStatistics(
+    timeRange?: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<GeneralStatistics> {
     try {
-      const startDate = this.getTimeRange(timeRange);
+      const filterCondition = this.getCondition(timeRange, startDate, endDate);
       const sales = await this.prisma.sale.findMany({
-        where: {
-          date: {
-            gte: startDate,
-          },
-        },
+        where: filterCondition,
         include: {
           saleDetail: true,
         },
@@ -254,42 +165,13 @@ export class StatisticsService {
       );
 
       return summary;
-
-      // CODIGO ANTERIOR
-
-      // const generalStatistics = {
-      //   salesQuantity: 0,
-      //   incomesTotal: 0,
-      //   productsSold: 0,
-      // };
-
-      // const sales = await this.prisma.sale.findMany({
-      //   where: {
-      //     date: {
-      //       gte: startDate,
-      //     },
-      //   },
-      // });
-      // for (const sale of sales) {
-      //   generalStatistics.salesQuantity += 1;
-      //   generalStatistics.incomesTotal += sale.total;
-      //   const saleDetail = await this.prisma.saleDetail.findMany({
-      //     where: {
-      //       sale_id: sale.id,
-      //     },
-      //   });
-      //   for (const item of saleDetail) {
-      //     generalStatistics.productsSold += item.quantity;
-      //   }
-      // }
-      // return generalStatistics;
     } catch (error) {
       this.logger.error(error.message);
       throw error;
     }
   }
 
-  private getTimeRange(timeRange: string): Date {
+  private getTimeRange(timeRange?: string): Date {
     const limitedDate = new Date();
     switch (timeRange) {
       case '7days':
@@ -306,5 +188,26 @@ export class StatisticsService {
         break;
     }
     return limitedDate;
+  }
+
+  private getCondition(timeRange?: string, startDate?: Date, endDate?: Date) {
+    let filterCondition: any = {};
+
+    if (startDate && endDate) {
+      filterCondition = {
+        date: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+      };
+    } else {
+      const startRangeDate = this.getTimeRange(timeRange);
+      filterCondition = {
+        date: {
+          gte: startRangeDate,
+        },
+      };
+    }
+    return filterCondition;
   }
 }
